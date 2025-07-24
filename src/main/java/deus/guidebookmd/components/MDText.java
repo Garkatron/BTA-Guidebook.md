@@ -18,7 +18,7 @@ public class MDText extends MDComponent {
 	public List<TextPart> parts = new ArrayList<>();
 
 	public MDText(String text) {
-		this.height = 10;
+		this.height = mc.font.fontHeight;
 		this.originalText = text;
 		this.parts = parseTextWithFormatting(text);
 	}

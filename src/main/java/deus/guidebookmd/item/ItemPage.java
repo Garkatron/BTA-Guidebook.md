@@ -1,5 +1,6 @@
 package deus.guidebookmd.item;
 
+import deus.guidebookmd.MDBookScreen;
 import deus.guidebookmd.MarkdownScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.entity.player.Player;
@@ -14,7 +15,8 @@ public class ItemPage extends Item {
 
 	@Override
 	public ItemStack onUseItem(ItemStack itemstack, World world, Player entityplayer) {
-		Minecraft.getMinecraft().displayScreen(new MarkdownScreen());
+		Minecraft.getMinecraft().displayScreen(new MDBookScreen());
+		System.out.println(namespaceID.toString());
 		return super.onUseItem(itemstack, world, entityplayer);
 	}
 }

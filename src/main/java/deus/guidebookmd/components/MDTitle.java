@@ -1,10 +1,23 @@
 package deus.guidebookmd.components;
 
+import org.lwjgl.opengl.GL11;
+
 public class MDTitle extends MDText {
 
-	public MDTitle(String text, int level) {
+	protected float scale = 1f;
+
+	public MDTitle(String text, float scale) {
 		super(text);
-		this.height = 20 + level;
+		this.scale = scale;
+		this.height = (int) Math.ceil((mc.font.fontHeight * scale) + 9);
+	}
+
+	@Override
+	public void render(int x, int y) {
+		GL11.glPushMatrix();
+		GL11.glScalef(scale, scale, 1.0f);
+		super.render((int) (x / scale), (int) (y / scale));
+		GL11.glPopMatrix();
 	}
 
 }

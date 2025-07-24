@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "examplemod",
+  "id": "guidebookmd",
   "version": "${version}",
 
-  "name": "Example Mod",
+  "name": "Guidebook.md",
   "description": "This mod aims to help new BTA modders.",
   "authors": [
     "Turnip Labs"
@@ -19,20 +19,20 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-			"turniplabs.examplemod.ExampleMod"
+			"deus.guidebookmd.Guidebookmd"
     ],
 		"beforeGameStart": [
-			"turniplabs.examplemod.ExampleMod"
+			"deus.guidebookmd.Guidebookmd"
 		],
 		"afterGameStart": [
-			"turniplabs.examplemod.ExampleMod"
+			"deus.guidebookmd.Guidebookmd"
 		],
 		"recipesReady": [
-			"turniplabs.examplemod.ExampleMod"
+			"deus.guidebookmd.Guidebookmd"
 		]
 	},
   "mixins": [
-      "examplemod.mixins.json"
+		"guidebookmd.mixins.json"
   ],
 
   "depends": {

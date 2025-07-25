@@ -13,10 +13,10 @@ public class MDTitle extends MDText {
 	}
 
 	@Override
-	public void render(int x, int y) {
+	public void render(int x, int y, int mx, int my) {
 		GL11.glPushMatrix();
 		GL11.glScalef(scale, scale, 1.0f);
-		super.render((int) (x / scale), (int) (y / scale));
+		super.render((int) (x / scale), (int) (y / scale), mx, my);
 		GL11.glPopMatrix();
 	}
 

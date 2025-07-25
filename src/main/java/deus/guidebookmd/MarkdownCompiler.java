@@ -83,7 +83,7 @@ public class MarkdownCompiler {
 							currentPage.add(new MDText(content));
 							break;
 						case "LINK":
-							currentPage.add(new MDText(content));
+							currentPage.add(new MDLink(content, m.group(2)));
 							break;
 						case "SPECIAL": {
 							switch (content) {

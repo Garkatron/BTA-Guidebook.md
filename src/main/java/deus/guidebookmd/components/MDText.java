@@ -19,6 +19,7 @@ public class MDText extends MDComponent {
 
 	public MDText(String text) {
 		this.height = mc.font.fontHeight;
+		this.width = 18;
 		this.originalText = text;
 		this.parts = parseTextWithFormatting(text);
 	}
@@ -69,7 +70,7 @@ public class MDText extends MDComponent {
 		return parsed;
 	}
 	@Override
-	public void render(int x, int y) {
+	public void render(int x, int y, int mx, int my) {
 		int drawX = this.x + x;
 		int drawY = this.y + y;
 		int offsetX = 0;
@@ -89,5 +90,6 @@ public class MDText extends MDComponent {
 				offsetX += mc.font.getStringWidth(text);
 			}
 		}
+
 	}
 }

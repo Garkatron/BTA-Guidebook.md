@@ -1,19 +1,9 @@
 # Index
 
-* Items
-* Blocks
-* Recipes
-* Materials
-* Mobs
-* Monsters
-* Creatures
-* Bosses
-* Bosses
-* Bosses
-* Bosses
-* Bosses
-* Bosses
-* Bosses
-* Bosses
-* Bosses
-![Bosses](#5)
+[Plants](5)
+[Food](0)
+[Monsters](0)
+[Creatures](4)
+[Ores](0)
+[Blocks](0)
+[Tools](0)

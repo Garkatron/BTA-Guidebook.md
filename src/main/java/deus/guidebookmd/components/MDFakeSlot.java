@@ -27,8 +27,8 @@ public class MDFakeSlot extends MDComponent{
 	}
 
 	@Override
-	public void render(int x, int y) {
-		super.render(x+10, y);
+	public void render(int x, int y, int mx, int my) {
+		super.render(x+10, y, mx, my);
 
 		drawTexturedIcon(x+10 , y,width, height, TextureRegistry.getTexture("guidebookmd:gui/hud/slot"));
 		this.itemElement.render(item.getDefaultStack(), x+10, y);

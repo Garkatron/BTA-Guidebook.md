@@ -16,8 +16,8 @@ public class MDImage extends MDComponent {
 	}
 
 	@Override
-	public void render(int x, int y) {
-		super.render(x, y);
+	public void render(int x, int y, int mx, int my) {
+		super.render(x, y, mx, my);
 		GL11.glDisable(GL11.GL_BLEND);
 
 		mc.textureManager.loadTexture(path).bind();

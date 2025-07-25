@@ -23,6 +23,7 @@ public class MDBookScreen extends MarkdownScreen {
 			"/assets/guidebookmd/markdown/test3.md",
 			"/assets/guidebookmd/markdown/test4.md",
 			"/assets/guidebookmd/markdown/test5.md");
+		shareReferenceToComponents();
 
 	}
 
@@ -32,11 +33,11 @@ public class MDBookScreen extends MarkdownScreen {
 		x = (width - 158) / 2;
 		y = (height - 220) / 2;
 
-
 		currentPage = pages.get(currentPageNumber);
 
 		centered = true;
-		xOffset = -150;
+		centeredMaxWidth = false;
+		xOffset = -142;
 
 		if (darkMode) {
 			pageTexture = "/assets/guidebookmd/textures/gui/dark_guidebook.png";
@@ -45,30 +46,38 @@ public class MDBookScreen extends MarkdownScreen {
 
 	@Override
 	public void render(int mx, int my, float partialTick) {
-
 		currentPage = pages.get(currentPageNumber);
-
 		startY = y + 10;
-
 
 		GL11.glDisable(GL11.GL_BLEND);
 
 		mc.textureManager.loadTexture(pageTexture).bind();
 
+		drawTexturedModalRect(x - 79, y, 0, 0, 158, 220); // Left page
+		drawTexturedModalRect(x + 79, y, 0, 0, 158, 220); // Right page
 
-		drawTexturedModalRect(x - 79, y, 0, 0, 158, 220);
-		drawTexturedModalRect(x + 79, y, 0, 0, 158, 220);
+		debugRect(x, y, 86, 143, 215);
+		debugRect(x, y, -73, 144, 215);
 
-		int rightPageIndex = currentPageNumber;
+		GL11.glPushMatrix();
+
+		GL11.glEnable(GL11.GL_SCISSOR_TEST);
+		applyScissor(x - 73, y, 144, 215);
+		drawPage(pages.get(currentPageNumber), startY, xOffset, mx, my);
+		GL11.glDisable(GL11.GL_SCISSOR_TEST);
+
 		if (currentPageNumber + 1 < pages.size()) {
-			rightPageIndex = currentPageNumber + 1;
-			drawPage(pages.get(rightPageIndex), startY, xOffset + 150+8);
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			applyScissor(x + 86, y, 143, 215);
+			drawPage(pages.get(currentPageNumber + 1), startY, xOffset + 150 + 8, mx, my);
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		}
 
-		drawPageTurnIndicator(mx,my,0);
+		drawPageTurnIndicator(mx, my, 0);
 
-		super.render(mx, my, partialTick);
+		GL11.glPopMatrix();
 	}
+
 
 	public void loadMarkdownPage(String path) {
 		this.pages.add(MarkdownCompiler.compile(path, getClass()));
@@ -78,6 +87,23 @@ public class MDBookScreen extends MarkdownScreen {
 		for (String path : paths) {
 			loadMarkdownPage(path);
 		}
+	}
+
+	public void debugRect(int x, int y, int offsetX, int width, int height) {
+		// Dibujar contornos de las páginas para depuración
+		GL11.glDisable(GL11.GL_TEXTURE_2D); // Desactivar texturas para contornos
+		GL11.glLineWidth(2.0f); // Grosor de las líneas
+		GL11.glColor3f(1.0f, 0.0f, 0.0f); // Color rojo para páginas
+
+		// Contorno página derecha (x + 79, y, 158, 220)
+		GL11.glBegin(GL11.GL_LINE_LOOP);
+		GL11.glVertex2f(x + offsetX, y);
+		GL11.glVertex2f(x + offsetX + width, y);
+		GL11.glVertex2f(x + offsetX + width, y + height);
+		GL11.glVertex2f(x + offsetX, y + height);
+		GL11.glEnd();
+
+		GL11.glEnable(GL11.GL_TEXTURE_2D); // Restaurar texturas
 	}
 
 	private void drawPageTurnIndicator(int mouseX, int mouseY, int xOffset) {
@@ -120,6 +146,24 @@ public class MDBookScreen extends MarkdownScreen {
 		currentPage = pages.get(currentPageNumber);
 		playPageSound();
 	}
+
+	public void goTo(int pageNumber) {
+		currentPageNumber = pageNumber;
+
+		if (currentPageNumber % 2 != 0) {
+			currentPageNumber--;
+		}
+
+		if (currentPageNumber < 0) currentPageNumber = 0;
+		if (currentPageNumber >= pages.size()) currentPageNumber = 0;
+
+		currentPage = pages.get(currentPageNumber);
+		int diff = currentPageNumber-pageNumber;
+		for (int i = 0; i<diff; i++) {
+			playPageSound();
+		}
+	}
+
 
 	@Override
 	protected void buttonReleased(ButtonElement button) {
@@ -168,6 +212,15 @@ public class MDBookScreen extends MarkdownScreen {
 					goNext();
 					return;
 				}
+			}
+		}
+	}
+
+
+	private void shareReferenceToComponents() {
+		for (List<MDComponent> page : pages) {
+			for (MDComponent mdComponent : page) {
+				mdComponent.setScreen(this);
 			}
 		}
 	}

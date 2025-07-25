@@ -33,7 +33,7 @@ public class MDWorbench extends MDFakeSlot {
 	}
 
 	@Override
-	public void render(int x, int y) {
+	public void render(int x, int y, int mx, int my) {
 		for (int i = 0; i < 9; i++) {
 			int row = i / 3;
 			int col = i % 3;

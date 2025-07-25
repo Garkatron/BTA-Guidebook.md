@@ -1,4 +1,4 @@
-package deus.guidebookmd.gui;
+package deus.guidebookmd.gui.elements;
 
 import com.google.gson.Gson;
 

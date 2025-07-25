@@ -1,8 +1,10 @@
 package deus.guidebookmd.gui;
 
 import deus.guidebookmd.components.MDComponent;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import deus.guidebookmd.gui.elements.MDBookConfig;
+import deus.guidebookmd.gui.elements.MDGui;
+import deus.guidebookmd.gui.elements.MDPageConfig;
+import deus.guidebookmd.gui.elements.MDPageTurnIndicator;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
@@ -10,18 +12,18 @@ import java.util.Objects;
 
 import static deus.guidebookmd.gui.Utils.applyScissor;
 
-public class MDPage extends Gui {
+public class MDPage extends MDGui {
 	public MDPageConfig config;
 	public int x = 0;
 	public int y = 0;
-	protected MDBookScreen screen;
-	protected Minecraft mc;
+	public MDBookScreen screen;
 	List<MDComponent> mdComponents;
+	private final MDPageTurnIndicator button0 = new MDPageTurnIndicator(0, this);
+	private final MDPageTurnIndicator button1 = new MDPageTurnIndicator(1, this);
 
 	public MDPage(MDPageConfig config, List<MDComponent> mdComponents) {
 		this.config = config;
 		this.mdComponents = mdComponents;
-		this.mc = Minecraft.getMinecraft();
 	}
 
 	public static void drawPage(List<MDComponent> page, int x, int y, int mouseX, int mouseY, int width, int yOffset, boolean centered, boolean centeredMaxWidth) {
@@ -63,55 +65,42 @@ public class MDPage extends Gui {
 		MDBookConfig bkConfig = screen.config;
 		mc.textureManager.loadTexture(config.pageTexture == null ? bkConfig.defaultPageTexture : config.pageTexture).bind();
 
+		button0.texture = config.pageTexture;
+		button1.texture = config.pageTexture;
+
 		drawTexturedModalRect(x + this.x + pageXTexturePos, y + this.y, 0, 0, config.pageTextureWidth, config.pageTextureHeight);
 
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
 		applyScissor(mc, x + this.x + textXPos, y + this.y, config.scissorWH[0], config.scissorWH[1], screen.width, screen.height);
 
-		drawPage(mdComponents, x + this.x + textXPos, y + this.y + textYPos, mx, my, screen.width, screen.yOffset, false, false);
+		drawPage(mdComponents, x + this.x + textXPos, y + this.y + textYPos, mx, my, screen.width, screen.yOffset, config.centered, screen.centeredMaxWidth);
 
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
-		// Dibujar botón "siguiente" si aplica
 		if (config.hasNextButton) {
-			drawPageTurnIndicator(x + this.x + pageXTexturePos + 24,
-				y + this.y + config.pageTextureHeight,
-				mx, my, 0, config.pageTexture);
+			button0.x = x + this.x + pageXTexturePos + 24;
+			button0.y = y + this.y + config.pageTextureHeight;
+			button0.render();
 		}
 
-		// Dibujar botón "anterior" si aplica
 		if (config.hasPreviousButton) {
-			drawPageTurnIndicator(x + this.x + pageXTexturePos + (int) (config.pageTextureWidth ),
-				y + this.y + config.pageTextureHeight,
-				mx, my, 1, config.pageTexture);
+			button1.x = x + this.x + pageXTexturePos + (int) (config.pageTextureWidth );
+			button1.y = y + this.y + config.pageTextureHeight;
+
+			button1.render();
 		}
 
 	}
 
-	protected void drawPageTurnIndicator(int x, int y, int mx, int my, int type, String texture) {
-		int size = 24;
-
-		this.mc.textureManager.bindTexture(this.mc.textureManager.loadTexture(texture));
-		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-
-		int left = x - size;
-		int top = y - size;
-
-		if (mx >= left && mx <= left + size && my >= top && my <= top + size) {
-
-			switch (type) {
-				case 0:
-					this.drawTexturedModalRect(left, top, 48, 220, size, size);
-					break;
-				case 1:
-					this.drawTexturedModalRect(left, top, 72, 220, size, size);
-					break;
-			}
-
-		}
-
-
+	@Override
+	public void updateMousePos(int mx, int my) {
+		button0.updateMousePos(mx, my);
+		button1.updateMousePos(mx, my);
 	}
 
-
+	@Override
+	public void mouseClick(int mx, int my) {
+		button0.mouseClick(mx, my);
+		button1.mouseClick(mx, my);
+	}
 }

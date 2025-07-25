@@ -1,4 +1,4 @@
-package deus.guidebookmd.gui;
+package deus.guidebookmd.gui.elements;
 
 import com.google.gson.Gson;
 import deus.guidebookmd.formats.MarkdownColor;
@@ -10,7 +10,7 @@ public class MDPageConfig {
 	public int[] scissorWH = {144, 215};
 	public int maxWidthCharacters = 26;
 	public int maxCharactersHigh = 22;
-	public boolean centered = true;
+	public boolean centered = false;
 	public boolean centeredMaxWidth = false;
 	public int pageTextureWidth = 158;
 	public int pageTextureHeight = 220;

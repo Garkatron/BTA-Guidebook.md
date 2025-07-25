@@ -2,14 +2,12 @@ package deus.guidebookmd;
 
 import deus.guidebookmd.components.*;
 import deus.guidebookmd.gui.MDPage;
-import deus.guidebookmd.gui.MDPageConfig;
+import deus.guidebookmd.gui.elements.MDPageConfig;
 import deus.guidebookmd.gui.Tuple;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.regex.*;
 import java.util.stream.Collectors;

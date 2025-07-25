@@ -2,15 +2,13 @@ package deus.guidebookmd.gui;
 
 import deus.guidebookmd.components.MDComponent;
 import net.minecraft.client.gui.Screen;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static deus.guidebookmd.gui.MDPage.drawPage;
 
-public class MarkdownScreen extends Screen {
+public class MDScreen extends Screen {
 	protected List<MDComponent> currentPage = new ArrayList<>();
 
 	protected boolean centered = false;

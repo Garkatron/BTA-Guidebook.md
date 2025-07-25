@@ -13,13 +13,13 @@ import java.util.Random;
 
 public class MDBookScreen extends MDScreen {
 
-	protected final List<MDPage> pages = new ArrayList<>();
-	public int xOffset;
-	public int yOffset;
-	protected int currentPageNumber = -1;
 	protected MDBookConfig config = new MDBookConfig(c->{});
 
+	protected int currentPageNumber = -1;
+	protected final List<MDPage> pages = new ArrayList<>();
 
+	public int xOffset;
+	public int yOffset;
 
 	// ? Load markdown
 	public MDBookScreen() {
@@ -50,14 +50,16 @@ public class MDBookScreen extends MDScreen {
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glPushMatrix();
 
+		// ? Draw cover page
 		if (currentPageNumber == -1) {
 			mc.textureManager.loadTexture(config.frontPage).bind();
 			drawTexturedModalRect(xOffset, yOffset, 0, 0, config.frontBackPageWH[0], config.frontBackPageWH[1]);
 		} else {
 			// ? Draw pages
-			for (int i = 0; i < config.pageTexturePositions.length; i++) { // 2 pages max
+			for (int i = 0; i < config.pageTexturePositions.length; i++) {
 				int pageIndex = currentPageNumber + i;
 				if (pageIndex < pages.size()) {
+
 					// ? Get configs
 					int textX = config.textXPositions.length > i ? config.textXPositions[i] : 0;
 					int textY = config.textYPositions.length > i ? config.textYPositions[i] : 0;
@@ -66,27 +68,27 @@ public class MDBookScreen extends MDScreen {
 					MDPage page = pages.get(pageIndex);
 
 					// ? Avoid 2 buttons in each page
-					if (pageIndex % 2 == 0) {
+					if (config.pairButtons && pageIndex % 2 == 0) {
 						page.config.hasNextButton = true;
 						page.config.hasPreviousButton = false;
-					} else {
+					} else if (config.pairButtons) {
 						page.config.hasNextButton = false;
 						page.config.hasPreviousButton = true;
 					}
 
 					// ? Update mouse pos
 					page.updateMousePos(mx, my);
+					page.x = xOffset;
+					page.y = yOffset;
 
 					// ? Render
-					page.render(mx, my, xOffset, yOffset, textX, textY, textureX);
+					page.render(textX, textY, textureX);
 				}
 			}
 		}
 
 		GL11.glPopMatrix();
 	}
-
-
 
 
 	// ? Logic functions

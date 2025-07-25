@@ -7,6 +7,7 @@
   "backPage": "/assets/guidebookmd/textures/gui/generic_back.png",
   "frontPage": "/assets/guidebookmd/textures/gui/generic_cover.png",
   "frontBackPageWH": [158, 220],
+  "pairButtons": true,
   "defaultPageConfig": {
     "argbFontColor": 0,
     "pageTexture": "/assets/minecraft/textures/gui/container/guidebook/guidebook.png",

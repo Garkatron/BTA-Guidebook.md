@@ -61,31 +61,37 @@ public class MDPage extends MDGui {
 		this.screen = screen;
 	}
 
-	public void render(int mx, int my, int x, int y, int textXPos, int textYPos, int pageXTexturePos) {
+	public void render(int textXPos, int textYPos, int pageXTexturePos) {
+		// ? Book config
 		MDBookConfig bkConfig = screen.config;
 		mc.textureManager.loadTexture(config.pageTexture == null ? bkConfig.defaultPageTexture : config.pageTexture).bind();
 
+		// ? Get button texture
 		button0.texture = config.pageTexture;
 		button1.texture = config.pageTexture;
 
-		drawTexturedModalRect(x + this.x + pageXTexturePos, y + this.y, 0, 0, config.pageTextureWidth, config.pageTextureHeight);
+		// ? Draw background
+		drawTexturedModalRect(this.x + pageXTexturePos, this.y, 0, 0, config.pageTextureWidth, config.pageTextureHeight);
 
+		// ? Apply mask to avoid text overflow
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		applyScissor(mc, x + this.x + textXPos, y + this.y, config.scissorWH[0], config.scissorWH[1], screen.width, screen.height);
+		applyScissor(mc, this.x + textXPos, this.y, config.scissorWH[0], config.scissorWH[1], screen.width, screen.height);
 
-		drawPage(mdComponents, x + this.x + textXPos, y + this.y + textYPos, mx, my, screen.width, screen.yOffset, config.centered, screen.centeredMaxWidth);
+		// ? Draw markdown text
+		drawPage(mdComponents, this.x + textXPos, this.y + textYPos, mx, my, screen.width, screen.yOffset, config.centered, screen.centeredMaxWidth);
 
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
+		// ? Avoid draw 2 buttons
 		if (config.hasNextButton) {
-			button0.x = x + this.x + pageXTexturePos + 24;
-			button0.y = y + this.y + config.pageTextureHeight;
+			button0.x = this.x + pageXTexturePos + 24;
+			button0.y = this.y + config.pageTextureHeight;
 			button0.render();
 		}
 
 		if (config.hasPreviousButton) {
-			button1.x = x + this.x + pageXTexturePos + (int) (config.pageTextureWidth );
-			button1.y = y + this.y + config.pageTextureHeight;
+			button1.x = this.x + pageXTexturePos + config.pageTextureWidth;
+			button1.y = this.y + config.pageTextureHeight;
 
 			button1.render();
 		}
@@ -94,12 +100,14 @@ public class MDPage extends MDGui {
 
 	@Override
 	public void updateMousePos(int mx, int my) {
+		super.updateMousePos(mx, my);
 		button0.updateMousePos(mx, my);
 		button1.updateMousePos(mx, my);
 	}
 
 	@Override
 	public void mouseClick(int mx, int my) {
+		super.mouseClick(mx, my);
 		button0.mouseClick(mx, my);
 		button1.mouseClick(mx, my);
 	}

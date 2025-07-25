@@ -18,6 +18,7 @@ public class MDBookConfig {
 	public int[] pageTexturePositions = {-79, 79};
 	public int[] textXPositions = {-153, 166};
 	public int[] textYPositions = {0, 0};
+	public boolean pairButtons = true;
 	public MDPageConfig defaultPageConfig = new MDPageConfig();
 
 	public MDBookConfig(Consumer<MDBookConfig> config) {

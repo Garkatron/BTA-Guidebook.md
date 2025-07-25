@@ -10,6 +10,9 @@ import java.util.function.Consumer;
 public class MDBookConfig {
 
 	public String defaultPageTexture = "/assets/minecraft/textures/gui/container/guidebook/guidebook.png";
+	public String frontPage = "/assets/guidebookmd/textures/gui/generic_cover.png";
+	public String backPage = "/assets/guidebookmd/textures/gui/generic_back.png";
+	public int[] frontBackPageWH = {158, 220};
 
 	public int pageSkipAmount = 2;
 	public int[] pageTexturePositions = {-79, 79};

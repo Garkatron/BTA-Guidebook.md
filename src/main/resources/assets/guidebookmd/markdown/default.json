@@ -4,6 +4,9 @@
   "pageTexturePositions": [-79, 79],
   "textXPositions": [-73, 86],
   "textYPositions": [5, 5],
+  "backPage": "/assets/guidebookmd/textures/gui/generic_back.png",
+  "frontPage": "/assets/guidebookmd/textures/gui/generic_cover.png",
+  "frontBackPageWH": [158, 220],
   "defaultPageConfig": {
     "argbFontColor": 0,
     "pageTexture": "/assets/minecraft/textures/gui/container/guidebook/guidebook.png",

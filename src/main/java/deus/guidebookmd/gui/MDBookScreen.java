@@ -15,10 +15,9 @@ import static deus.guidebookmd.gui.Utils.applyScissor;
 
 public class MDBookScreen extends MarkdownScreen {
 
-	private int x;
-	private int y;
+	public int x;
+	public int y;
 	protected int currentPageNumber = 0;
-	protected boolean darkMode = true;
 	protected final List<MDPage> pages = new ArrayList<>();
 
 
@@ -28,6 +27,7 @@ public class MDBookScreen extends MarkdownScreen {
 
 	public MDBookScreen() {
 		config = MDBookConfig.fromJsonResource(getClass(),"/assets/guidebookmd/markdown/default.json");
+
 		loadMarkdownPages("/assets/guidebookmd/markdown/test.md","/assets/guidebookmd/markdown/test2.md",
 			"/assets/guidebookmd/markdown/test3.md",
 			"/assets/guidebookmd/markdown/test4.md",
@@ -42,33 +42,47 @@ public class MDBookScreen extends MarkdownScreen {
 		x = (width - 158) / 2;
 		y = (height - 220) / 2;
 
-		currentPage = getCurrentPage().mdComponents;
+		//currentPage = getCurrentPage().mdComponents;
 
 	}
 
 	@Override
 	public void render(int mx, int my, float partialTick) {
-		currentPage = getCurrentPage().mdComponents;
+		if (currentPageNumber != -1) {
+			currentPage = getCurrentPage().mdComponents;
+		}
 
 		GL11.glDisable(GL11.GL_BLEND);
 
 		GL11.glPushMatrix();
 
-		for (int i = 0; i < config.pageTexturePositions.length; i++) { // 2 pages max
-			int pageIndex = currentPageNumber + i;
-			if (pageIndex < pages.size()) {
-				int textX = config.textXPositions.length > i ? config.textXPositions[i] : 0;
-				int textY = config.textYPositions.length > i ? config.textYPositions[i] : 0;
-				int textureX = config.pageTexturePositions.length > i ? config.pageTexturePositions[i] : 0;
+		if (currentPageNumber == -1) {
+			mc.textureManager.loadTexture(config.frontPage).bind();
+			drawTexturedModalRect(x , y, 0, 0, config.frontBackPageWH[0], config.frontBackPageWH[1]);
 
-				pages.get(pageIndex).render(mx, my, x, y, textX, textY, textureX);
+
+		} else {
+			for (int i = 0; i < config.pageTexturePositions.length; i++) { // 2 pages max
+				int pageIndex = currentPageNumber + i;
+				if (pageIndex < pages.size()) {
+					int textX = config.textXPositions.length > i ? config.textXPositions[i] : 0;
+					int textY = config.textYPositions.length > i ? config.textYPositions[i] : 0;
+					int textureX = config.pageTexturePositions.length > i ? config.pageTexturePositions[i] : 0;
+
+					MDPage page = pages.get(pageIndex);
+					if (pageIndex%2==0) {
+						page.config.hasNextButton = true;
+						page.config.hasPreviousButton = false;
+					} else  {
+						page.config.hasNextButton = false;
+						page.config.hasPreviousButton = true;
+					}
+					page.render(mx, my, x, y, textX, textY, textureX);
+				}
 			}
 		}
-
-		debugRect(x, y, 86, 143, 215);
-		debugRect(x, y, -73, 144, 215);
-
-
+//		debugRect(x, y, 86, 143, 215);
+//		debugRect(x, y, -73, 144, 215);
 
 
 //		if (currentPageNumber + 1 < pages.size()) {
@@ -78,7 +92,7 @@ public class MDBookScreen extends MarkdownScreen {
 //			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 //		}
 
-		drawPageTurnIndicator(mx, my, 0);
+		//drawPageTurnIndicator(mx, my, 0);
 
 		GL11.glPopMatrix();
 	}
@@ -136,6 +150,8 @@ public class MDBookScreen extends MarkdownScreen {
 //			this.drawTexturedModalRect(right - size, top, 24, 220, 24, 24);
 //		}
 
+
+
 		if (mouseX >= right - size && mouseX <= right && mouseY >= bottom - size && mouseY <= bottom) {
 			this.drawTexturedModalRect(right - size, bottom - size, 72, 220, 24, 24);
 		}
@@ -155,9 +171,13 @@ public class MDBookScreen extends MarkdownScreen {
 	}
 
 	public void goNext() {
-		currentPageNumber += config.pageSkipAmount;
-		if (currentPageNumber >= pages.size()) currentPageNumber = 0;
-		playPageSound();
+		if (currentPageNumber==-1) {
+			currentPageNumber = 0;
+		} else {
+			currentPageNumber += config.pageSkipAmount;
+			if (currentPageNumber >= pages.size()) currentPageNumber = 0;
+			playPageSound();
+		}
 	}
 
 	public void goTo(int pageNumber) {

@@ -1,3 +1,6 @@
+![config]({
+"argbFontColor": 0,
+"pageTexture": "/assets/guidebookmd/textures/gui/dark_guidebook.png"})
 # Index
 
 [Plants](5)
@@ -7,3 +10,4 @@
 [Ores](0)
 [Blocks](0)
 [Tools](0)
+![slot](minecraft:item/paper)

@@ -1,6 +1,6 @@
 # &6Plants
 ### Nightfallium
-Nightfallium Mycelium, a rare
+Nightfallium Mycelium, a rare 
 fungus, grows in volcanic roc
 k crevices, emerging during
 fluctuations in reality’s pla

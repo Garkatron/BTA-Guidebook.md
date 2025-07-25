@@ -1,7 +1,6 @@
 package deus.guidebookmd.item;
 
-import deus.guidebookmd.MDBookScreen;
-import deus.guidebookmd.MarkdownScreen;
+import deus.guidebookmd.gui.MDBookScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.entity.player.Player;
 import net.minecraft.core.item.Item;

@@ -1,6 +1,6 @@
 package deus.guidebookmd.components;
 
-import deus.guidebookmd.MDBookScreen;
+import deus.guidebookmd.gui.MDBookScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 

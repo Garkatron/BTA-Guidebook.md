@@ -1,8 +1,8 @@
-package deus.guidebookmd;
+package deus.guidebookmd.gui;
 
+import deus.guidebookmd.MarkdownCompiler;
 import deus.guidebookmd.components.MDComponent;
 import net.minecraft.client.gui.ButtonElement;
-import net.minecraft.client.gui.Screen;
 import net.minecraft.core.sound.SoundCategory;
 import org.lwjgl.opengl.GL11;
 
@@ -10,15 +10,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import static deus.guidebookmd.gui.MDPage.drawPage;
+import static deus.guidebookmd.gui.Utils.applyScissor;
+
 public class MDBookScreen extends MarkdownScreen {
 
 	private int x;
 	private int y;
 	protected int currentPageNumber = 0;
 	protected boolean darkMode = true;
-	private String pageTexture = "/assets/minecraft/textures/gui/container/guidebook/guidebook.png";
+	protected final List<MDPage> pages = new ArrayList<>();
+
+
+	protected MDBookConfig config = new MDBookConfig(c -> {
+		c.centered = true;
+		c.centeredMaxWidth = false;
+	});
 
 	public MDBookScreen() {
+		config = MDBookConfig.fromJsonResource(getClass(),"/assets/guidebookmd/markdown/default.json");
 		loadMarkdownPages("/assets/guidebookmd/markdown/test.md","/assets/guidebookmd/markdown/test2.md",
 			"/assets/guidebookmd/markdown/test3.md",
 			"/assets/guidebookmd/markdown/test4.md",
@@ -33,53 +43,65 @@ public class MDBookScreen extends MarkdownScreen {
 		x = (width - 158) / 2;
 		y = (height - 220) / 2;
 
-		currentPage = pages.get(currentPageNumber);
+		currentPage = getCurrentPage().mdComponents;
 
-		centered = true;
-		centeredMaxWidth = false;
-		xOffset = -142;
+		centered = config.centered;
+		centeredMaxWidth = config.centeredMaxWidth;
 
-		if (darkMode) {
-			pageTexture = "/assets/guidebookmd/textures/gui/dark_guidebook.png";
-		}
+
 	}
 
 	@Override
 	public void render(int mx, int my, float partialTick) {
-		currentPage = pages.get(currentPageNumber);
+		currentPage = getCurrentPage().mdComponents;
 		startY = y + 10;
 
 		GL11.glDisable(GL11.GL_BLEND);
 
-		mc.textureManager.loadTexture(pageTexture).bind();
+		GL11.glPushMatrix();
 
-		drawTexturedModalRect(x - 79, y, 0, 0, 158, 220); // Left page
-		drawTexturedModalRect(x + 79, y, 0, 0, 158, 220); // Right page
+		for (int i = 0; i < config.pageTexturePositions.length; i++) {
+			MDPageConfig pageConfig = getCurrentPage().config;
+			mc.textureManager.loadTexture(pageConfig.pageTexture==null ? config.defaultPageTexture : pageConfig.pageTexture).bind();
+
+			drawTexturedModalRect(x + config.pageTexturePositions[i], y, 0, 0, config.pageTextureWidth, config.pageTextureHeight);
+
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			applyScissor(mc, x + config.textXPositions[i], y, config.scissorWH[0], config.scissorWH[1], width, height);
+
+			for (int i1 = 0; i1 < config.textXPositions.length; i1++) {
+				if (currentPageNumber + i1 < pages.size()) {
+					drawPage(pages.get(currentPageNumber + i1).mdComponents, startY, config.textXOffsets[i1], mx, my, width, yOffset, centered, centeredMaxWidth);
+				}
+			}
+
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		}
 
 		debugRect(x, y, 86, 143, 215);
 		debugRect(x, y, -73, 144, 215);
 
-		GL11.glPushMatrix();
 
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		applyScissor(x - 73, y, 144, 215);
-		drawPage(pages.get(currentPageNumber), startY, xOffset, mx, my);
-		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
-		if (currentPageNumber + 1 < pages.size()) {
-			GL11.glEnable(GL11.GL_SCISSOR_TEST);
-			applyScissor(x + 86, y, 143, 215);
-			drawPage(pages.get(currentPageNumber + 1), startY, xOffset + 150 + 8, mx, my);
-			GL11.glDisable(GL11.GL_SCISSOR_TEST);
-		}
+
+//		if (currentPageNumber + 1 < pages.size()) {
+//			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+//			applyScissor(x + 86, y, 143, 215);
+//			drawPage(pages.get(currentPageNumber + 1), startY, xOffset + 150 + 8, mx, my);
+//			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+//		}
 
 		drawPageTurnIndicator(mx, my, 0);
 
 		GL11.glPopMatrix();
 	}
 
+	public int getPagesCount() {
+		return pages.size();
+	}
 
 	public void loadMarkdownPage(String path) {
+
 		this.pages.add(MarkdownCompiler.compile(path, getClass()));
 
 	}
@@ -112,7 +134,7 @@ public class MDBookScreen extends MarkdownScreen {
 		int bottom = this.height / 2 + 110;
 		int left = this.width / 2 - 158 + xOffset;
 		int right = this.width / 2 + 158 + xOffset;
-		this.mc.textureManager.bindTexture(this.mc.textureManager.loadTexture(pageTexture));
+		this.mc.textureManager.bindTexture(this.mc.textureManager.loadTexture(config.defaultPageTexture));
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 //
 //			if (mouseX >= left && mouseX <= left + size && mouseY >= top && mouseY <= top + size) {
@@ -131,33 +153,36 @@ public class MDBookScreen extends MarkdownScreen {
 			this.drawTexturedModalRect(right - size, bottom - size, 72, 220, 24, 24);
 		}
 
+
+
+	}
+
+	public MDPage getCurrentPage() {
+		return pages.get(currentPageNumber);
 	}
 
 	public void goBack() {
-		currentPageNumber -= 2;
+		currentPageNumber -= config.pageSkipAmount;
 		if (currentPageNumber < 0) currentPageNumber = pages.size() - 1;
-		currentPage = pages.get(currentPageNumber);
 		playPageSound();
 	}
 
 	public void goNext() {
-		currentPageNumber += 2;
+		currentPageNumber += config.pageSkipAmount;
 		if (currentPageNumber >= pages.size()) currentPageNumber = 0;
-		currentPage = pages.get(currentPageNumber);
 		playPageSound();
 	}
 
 	public void goTo(int pageNumber) {
 		currentPageNumber = pageNumber;
 
-		if (currentPageNumber % 2 != 0) {
+		if (currentPageNumber % config.pageSkipAmount != 0) {
 			currentPageNumber--;
 		}
 
 		if (currentPageNumber < 0) currentPageNumber = 0;
 		if (currentPageNumber >= pages.size()) currentPageNumber = 0;
 
-		currentPage = pages.get(currentPageNumber);
 		int diff = currentPageNumber-pageNumber;
 		for (int i = 0; i<diff; i++) {
 			playPageSound();
@@ -218,8 +243,8 @@ public class MDBookScreen extends MarkdownScreen {
 
 
 	private void shareReferenceToComponents() {
-		for (List<MDComponent> page : pages) {
-			for (MDComponent mdComponent : page) {
+		for (MDPage page : pages) {
+			for (MDComponent mdComponent : page.mdComponents) {
 				mdComponent.setScreen(this);
 			}
 		}

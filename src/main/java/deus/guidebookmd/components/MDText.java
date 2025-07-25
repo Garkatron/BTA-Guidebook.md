@@ -19,7 +19,7 @@ public class MDText extends MDComponent {
 
 	public MDText(String text) {
 		this.height = mc.font.fontHeight;
-		this.width = 18;
+		this.width = Math.max(143, mc.font.getStringWidth(text));
 		this.originalText = text;
 		this.parts = parseTextWithFormatting(text);
 	}
@@ -75,9 +75,15 @@ public class MDText extends MDComponent {
 		int drawY = this.y + y;
 		int offsetX = 0;
 
+
 		for (TextPart part : parts) {
 			int color = part.color;
 			String text = part.text;
+
+
+			if(screen != null) {
+				argbColor = screen.getCurrentPage().config.argbFontColor;
+			}
 
 			if (centered) {
 				drawStringCentered(mc.font, text, drawX, drawY, color);

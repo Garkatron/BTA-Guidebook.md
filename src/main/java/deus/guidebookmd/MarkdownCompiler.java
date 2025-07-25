@@ -1,21 +1,34 @@
 package deus.guidebookmd;
 
 import deus.guidebookmd.components.*;
+import deus.guidebookmd.gui.MDPage;
+import deus.guidebookmd.gui.MDPageConfig;
+import deus.guidebookmd.gui.Tuple;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.regex.*;
 import java.util.stream.Collectors;
 
 public class MarkdownCompiler {
 
-	private static final List<PatternType> patterns = new ArrayList<>();
-	public static final int[] colors = {};
+	// ? Patterns
+	private static class PatternType {
+		public Pattern pattern;
+		public String type;
 
+		public PatternType(Pattern pattern, String type) {
+			this.pattern = pattern;
+			this.type = type;
+		}
+	}
+	private static final List<PatternType> patterns = new ArrayList<>();
 	static {
-		patterns.add(new PatternType(Pattern.compile("!\\[([^]]*)\\]\\(([^)]*)\\)?"), "SPECIAL"));
+		patterns.add(new PatternType(Pattern.compile("!\\[([^]]*)\\]\\((.*?)\\)", Pattern.DOTALL), "SPECIAL"));
 		patterns.add(new PatternType(Pattern.compile("\\[([^\\]]+)]\\(([^)]+)\\)\\((\\d+),(\\d+)(?:,\\s*([^\\)]+))?\\)"), "IMAGE"));
 		patterns.add(new PatternType(Pattern.compile("\\[([^\\]]+)\\]\\(([^\\)]+)\\)"), "LINK"));
 		patterns.add(new PatternType(Pattern.compile("^######\\s+(.+)$"), "H6"));
@@ -28,35 +41,41 @@ public class MarkdownCompiler {
 		patterns.add(new PatternType(Pattern.compile("^\\s*(?![#*+])(.*)$"), "TEXT"));
 	}
 
-	// [image](a.png)(w,h,type=default|icon)
-	public static List<MDComponent> compile(List<String> lines) {
-		return compile(lines, -1);
-	}
-
-
-	public static List<MDComponent> compile(List<String> lines, int maxLines) {
+	// ? Main Function
+	public static MDPage compile(List<String> lines, int maxLines) {
 		List<MDComponent> currentPage = new ArrayList<>();
 		int lineCount = 0;
-		for (String line : lines) {
+
+		String fullText = String.join("\n", lines);
+
+		// * Returns config and a clean text
+		Tuple<MDPageConfig, String> info = extractConfig(fullText);
+
+		fullText = info.y;
+
+		String[] splitLines = fullText.split("\n");
+
+		for (String line : splitLines) {
 			if (maxLines > 0 && lineCount >= maxLines) {
 				Guidebookmd.LOGGER.warn("Max lines for MD reached: {}", maxLines);
 				break;
 			}
 			boolean matched = false;
 			lineCount++;
-			for (int i = 0; i < patterns.size(); i++) {
-				PatternType pt = patterns.get(i);
+
+			for (PatternType pt : patterns) {
 				Matcher m = pt.pattern.matcher(line);
 
-				if (m.matches()) {
+				if (m.find()) {
 					String content = m.groupCount() >= 1 ? m.group(1) : "";
 					String type = pt.type;
 
+					// * Finds the action for each pattern
 					switch (type) {
 						case "IMAGE":
-							String tipo = m.group(5);
-							if (tipo == null) tipo = "default";
-							currentPage.add(new MDImage(content, m.group(2), Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), tipo));
+							String imageType = m.group(5);
+							if (imageType == null) imageType = "default";
+							currentPage.add(new MDImage(content, m.group(2), Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), imageType));
 							break;
 						case "H1":
 							currentPage.add(new MDTitle(content, 2.0f));
@@ -85,6 +104,7 @@ public class MarkdownCompiler {
 						case "LINK":
 							currentPage.add(new MDLink(content, m.group(2)));
 							break;
+						// * Works different, it depends on the content inside []
 						case "SPECIAL": {
 							switch (content) {
 								case "slot":
@@ -92,6 +112,8 @@ public class MarkdownCompiler {
 									break;
 								case "workbench":
 									currentPage.add(new MDWorbench(m.group(2)));
+									break;
+
 							}
 							break;
 						}
@@ -100,7 +122,6 @@ public class MarkdownCompiler {
 					matched = true;
 					break;
 				}
-
 			}
 
 			if (!matched) {
@@ -108,10 +129,47 @@ public class MarkdownCompiler {
 			}
 		}
 
-		return currentPage;
+		return new MDPage(info.x, currentPage);
 	}
 
-	public static List<MDComponent> compile(String path, Class<?> c, int maxLines) {
+
+	// ? Others
+
+	/**
+	 * Extracts the config json from the markdown String
+	 * @param fullText Markdown
+	 * @return A Tuple with the MDPageConfig and the clean String
+	 */
+	public static Tuple<MDPageConfig, String> extractConfig(String fullText) {
+		Matcher configMatcher = patterns.get(0).pattern.matcher(fullText);
+
+		if (configMatcher.find()) {
+			if ("config".equals(configMatcher.group(1))) {
+				try {
+					MDPageConfig config = MDPageConfig.fromJsonString(configMatcher.group(2));
+
+					int start = configMatcher.start();
+					int end = configMatcher.end();
+					String before = fullText.substring(0, start).trim();
+					String after = fullText.substring(end).trim();
+					String cleanedText = before + "\n" + after;
+
+					return new Tuple<>(config, cleanedText);
+				} catch (Exception e) {
+					Guidebookmd.LOGGER.error("Invalid config block", e);
+				}
+			}
+		}
+
+		return new Tuple<>(new MDPageConfig(), fullText);
+	}
+
+
+	// ? Compile overhead
+	public static MDPage compile(List<String> lines) {
+		return compile(lines, -1);
+	}
+	public static MDPage compile(String path, Class<?> c, int maxLines) {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(c.getResourceAsStream(path)))) {
 			List<String> lines = reader.lines().collect(Collectors.toList());
 			return compile(lines, maxLines);
@@ -119,19 +177,9 @@ public class MarkdownCompiler {
 			throw new RuntimeException("Error reading Markdown file: " + path, e);
 		}
 	}
-	public static List<MDComponent> compile(String path, Class<?> c) {
+
+	public static MDPage compile(String path, Class<?> c) {
 		return compile(path, c, -1);
-	}
-
-	private static class PatternType {
-		public Pattern pattern;
-		public String type;
-
-		public PatternType(Pattern pattern, String type) {
-			this.pattern = pattern;
-			this.type = type;
-		}
-
 	}
 
 

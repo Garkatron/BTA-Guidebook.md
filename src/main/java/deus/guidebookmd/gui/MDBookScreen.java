@@ -23,8 +23,7 @@ public class MDBookScreen extends MarkdownScreen {
 
 
 	protected MDBookConfig config = new MDBookConfig(c -> {
-		c.centered = true;
-		c.centeredMaxWidth = false;
+
 	});
 
 	public MDBookScreen() {
@@ -45,37 +44,25 @@ public class MDBookScreen extends MarkdownScreen {
 
 		currentPage = getCurrentPage().mdComponents;
 
-		centered = config.centered;
-		centeredMaxWidth = config.centeredMaxWidth;
-
-
 	}
 
 	@Override
 	public void render(int mx, int my, float partialTick) {
 		currentPage = getCurrentPage().mdComponents;
-		startY = y + 10;
 
 		GL11.glDisable(GL11.GL_BLEND);
 
 		GL11.glPushMatrix();
 
-		for (int i = 0; i < config.pageTexturePositions.length; i++) {
-			MDPageConfig pageConfig = getCurrentPage().config;
-			mc.textureManager.loadTexture(pageConfig.pageTexture==null ? config.defaultPageTexture : pageConfig.pageTexture).bind();
+		for (int i = 0; i < config.pageTexturePositions.length; i++) { // 2 pages max
+			int pageIndex = currentPageNumber + i;
+			if (pageIndex < pages.size()) {
+				int textX = config.textXPositions.length > i ? config.textXPositions[i] : 0;
+				int textY = config.textYPositions.length > i ? config.textYPositions[i] : 0;
+				int textureX = config.pageTexturePositions.length > i ? config.pageTexturePositions[i] : 0;
 
-			drawTexturedModalRect(x + config.pageTexturePositions[i], y, 0, 0, config.pageTextureWidth, config.pageTextureHeight);
-
-			GL11.glEnable(GL11.GL_SCISSOR_TEST);
-			applyScissor(mc, x + config.textXPositions[i], y, config.scissorWH[0], config.scissorWH[1], width, height);
-
-			for (int i1 = 0; i1 < config.textXPositions.length; i1++) {
-				if (currentPageNumber + i1 < pages.size()) {
-					drawPage(pages.get(currentPageNumber + i1).mdComponents, startY, config.textXOffsets[i1], mx, my, width, yOffset, centered, centeredMaxWidth);
-				}
+				pages.get(pageIndex).render(mx, my, x, y, textX, textY, textureX);
 			}
-
-			GL11.glDisable(GL11.GL_SCISSOR_TEST);
 		}
 
 		debugRect(x, y, 86, 143, 215);
@@ -244,6 +231,7 @@ public class MDBookScreen extends MarkdownScreen {
 
 	private void shareReferenceToComponents() {
 		for (MDPage page : pages) {
+			page.setScreen(this);
 			for (MDComponent mdComponent : page.mdComponents) {
 				mdComponent.setScreen(this);
 			}

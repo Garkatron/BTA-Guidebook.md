@@ -8,18 +8,15 @@ import java.io.InputStreamReader;
 import java.util.function.Consumer;
 
 public class MDBookConfig {
-	public int[] scissorWH = {144, 215};
-	public int maxWidthCharacters = 26;
-	public int maxCharactersHigh = 22;
-	public boolean centered = true;
-	public boolean centeredMaxWidth = false;
+
 	public String defaultPageTexture = "/assets/minecraft/textures/gui/container/guidebook/guidebook.png";
-	public int pageTextureWidth = 158;
-	public int pageTextureHeight = 220;
+
 	public int pageSkipAmount = 2;
 	public int[] pageTexturePositions = {-79, 79};
-	public int[] textXPositions = {-73, 86};
-	public int[] textXOffsets = {-80, 80};
+	public int[] textXPositions = {-153, 166};
+	public int[] textYPositions = {0, 0};
+	public MDPageConfig defaultPageConfig = new MDPageConfig();
+
 	public MDBookConfig(Consumer<MDBookConfig> config) {
 		config.accept(this);
 	}

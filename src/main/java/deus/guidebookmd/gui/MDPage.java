@@ -26,26 +26,26 @@ public class MDPage extends Gui {
 		this.screen = screen;
 	}
 
-	public void render(int mx, int my, int x, int y, int textOffset, int textXPos, int pageXTexturePos) {
+	public void render(int mx, int my, int x, int y, int textXPos, int textYPos, int pageXTexturePos) {
 		MDBookConfig bkConfig = screen.config;
 		mc.textureManager.loadTexture(config.pageTexture==null ? bkConfig.defaultPageTexture : config.pageTexture).bind();
 
-		drawTexturedModalRect(x + pageXTexturePos, y, 0, 0, bkConfig.pageTextureWidth, bkConfig.pageTextureHeight);
+		drawTexturedModalRect(x + pageXTexturePos, y, 0, 0, config.pageTextureWidth, config.pageTextureHeight);
 
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		applyScissor(mc,x + textXPos, y, bkConfig.scissorWH[0], bkConfig.scissorWH[1], screen.width, screen.height);
+		applyScissor(mc,x + textXPos, y, config.scissorWH[0], config.scissorWH[1], screen.width, screen.height);
 
-		drawPage(mdComponents, y, textOffset, mx, my, screen.width, screen.yOffset, true, false);
+		drawPage(mdComponents,x + textXPos, y +textYPos, mx, my, screen.width, screen.yOffset, false, false);
 
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 	}
 
-	public static void drawPage(List<MDComponent> page, int startY, int xOffset, int mouseX, int mouseY, int width, int yOffset, boolean centered, boolean centeredMaxWidth) {
+	public static void drawPage(List<MDComponent> page, int x, int y, int mouseX, int mouseY, int width, int yOffset, boolean centered, boolean centeredMaxWidth) {
 		if (page == null || page.isEmpty()) {
 			return;
 		}
 
-		int currentY = startY;
+		int currentY = y;
 		int maxWidth = 0;
 
 		if (centeredMaxWidth) {
@@ -56,13 +56,13 @@ public class MDPage extends Gui {
 
 		for (MDComponent mdComponent : page) {
 			Objects.requireNonNull(mdComponent, "MDComponent cannot be null");
-			int renderX = xOffset;
+			int renderX = x;
 
 			if (centered) {
 				if (centeredMaxWidth) {
-					renderX = (width - maxWidth) / 2 + xOffset;
+					renderX = (width - maxWidth) / 2 + x;
 				} else {
-					renderX = (width - mdComponent.width) / 2 + xOffset;
+					renderX = (width - mdComponent.width) / 2 + x;
 				}
 			}
 

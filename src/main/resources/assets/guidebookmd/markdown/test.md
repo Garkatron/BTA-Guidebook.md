@@ -1,13 +1,25 @@
-![config]({
-"argbFontColor": 0,
-"pageTexture": "/assets/guidebookmd/textures/gui/dark_guidebook.png"})
-# Index
+01234567890abcdefghijklmn 26
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
 
-[Plants](5)
-[Food](0)
-[Monsters](0)
-[Creatures](4)
-[Ores](0)
-[Blocks](0)
-[Tools](0)
-![slot](minecraft:item/paper)
+26w*22h

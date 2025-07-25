@@ -7,6 +7,14 @@ public class MDPageConfig {
 	public int argbFontColor = MarkdownColor.get('0');
 	public String pageTexture = "/assets/minecraft/textures/gui/container/guidebook/guidebook.png";
 
+	public int[] scissorWH = {144, 215};
+	public int maxWidthCharacters = 26;
+	public int maxCharactersHigh = 22;
+	public boolean centered = true;
+	public boolean centeredMaxWidth = false;
+	public int pageTextureWidth = 158;
+	public int pageTextureHeight = 220;
+
 	public static MDPageConfig fromJsonString(String json) {
 		Gson gson = new Gson();
 		return gson.fromJson(json, MDPageConfig.class);

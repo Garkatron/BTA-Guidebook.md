@@ -7,6 +7,7 @@ Load config from asset path, include .md files.
 Use as a normal screen, opened from a trigger.
 
 **Formats**  
+```
 Use `< & >` chars for color codes:
 - 0 = &0Black
 - 1 = &1Dark Blue
@@ -26,8 +27,9 @@ Use `< & >` chars for color codes:
 - f = &fWhite
 - s = &sShadow
 - r = Reset
-
+```
 **Syntax**  
+```
 Regular &3Markdown syntax adapted for &6BTA Guidebook format:
 # H1
 ## H2
@@ -38,13 +40,14 @@ Regular &3Markdown syntax adapted for &6BTA Guidebook format:
 * Unordered List
 - Unordered List
 1. Ordered List
-
+```
 **Specials**  
+```markdown
 **Images**
 - [text](/assets/modid/textures/path/to/img.png)(width,height,type)
 - ![slot](modid:item/name)
 - ![workbench](empty,empty,empty,empty,empty,empty,empty,empty,empty)
-
+```
 - &6Width & Height in pixels
 - &6type = default | icon (no text)
 

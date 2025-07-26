@@ -49,3 +49,40 @@ Regular &3Markdown syntax adapted for &6BTA Guidebook format:
 - &6type = default | icon (no text)
 
 &cMore info on the mod's GitHub wiki!
+
+# How to use?
+### Markdown guidebook
+```java
+public class MyBook extends MDBookScreen {
+
+	public IntroBook() {
+		String path = "/assets/modid/markdown/bookname/";
+		config = BookConfig.fromJsonResource(getClass(), path + "config.json");
+		String[] pages = {
+			"index.md", // Page 0
+			"intro.md", // Page 1
+			"page2.md",
+			"page3.md",
+			"page4.md",
+			"page5.md",
+			"page6.md" // Last page
+		};
+		for (String page : pages) {
+			loadMarkdownPages(path + page); // Load markdown
+		}
+	}
+}
+```
+
+### Display markdown
+_Check superclass for more info._
+```java
+public class MyMDScreen extends MDScreen {
+    public MyMDScreen() {
+        currentPage = MarkdownCompiler.compile("/assets/modid/markdown/path/to/your/file.md", getClass());
+    }
+}
+```
+
+### Showcase
+Download the zip with the files in the release page

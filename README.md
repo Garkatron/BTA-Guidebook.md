@@ -86,3 +86,6 @@ public class MyMDScreen extends MDScreen {
 
 ### Showcase
 Download the zip with the files in the release page
+<img width="1464" height="879" alt="image" src="https://github.com/user-attachments/assets/d87392c0-9c10-44e0-878c-a8926bffca7f" />
+https://github.com/user-attachments/assets/d2f9fe57-74f7-433e-8f00-0848fc137571
+

@@ -3,6 +3,7 @@ package deus.guidebookmd;
 import deus.guidebookmd.item.ItemGuidebookmd;
 import net.minecraft.core.item.Item;
 import turniplabs.halplibe.helper.ItemBuilder;
+import turniplabs.halplibe.util.toml.Toml;
 
 public class Items {
 
@@ -12,7 +13,7 @@ public class Items {
 
 
 	public static void initialize() {
-		MD_ITEM_GUIDE = genericItemBuilder.build(new ItemGuidebookmd("guide",Guidebookmd.MOD_ID+":item/guide", 23001));
+		MD_ITEM_GUIDE = genericItemBuilder.build(new ItemGuidebookmd("guide",Guidebookmd.MOD_ID+":item/guide", Guidebookmd.CFG.getInt("IDs.guidebook")));
 		//MD_ITEM_DARK_GUIDE = genericItemBuilder.build(new ItemGuidebookmd("dark_guide",Guidebookmd.MOD_ID+":item/dark_guide", 23002));
 	}
 }

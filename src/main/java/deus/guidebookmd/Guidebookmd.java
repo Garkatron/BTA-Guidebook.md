@@ -18,6 +18,8 @@ import turniplabs.halplibe.helper.ModelHelper;
 import turniplabs.halplibe.util.GameStartEntrypoint;
 import turniplabs.halplibe.util.ModelEntrypoint;
 import turniplabs.halplibe.util.RecipeEntrypoint;
+import turniplabs.halplibe.util.TomlConfigHandler;
+import turniplabs.halplibe.util.toml.Toml;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -26,6 +28,15 @@ import java.net.URISyntaxException;
 public class Guidebookmd implements ModInitializer, RecipeEntrypoint, GameStartEntrypoint, ModelEntrypoint {
     public static final String MOD_ID = "guidebookmd";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static TomlConfigHandler CFG;
+	private static final Toml TOML = new Toml("Nothing to see here");
+
+	static {
+		TOML.addCategory("IDs")
+			.addEntry("guidebook", 25000);
+
+		CFG = new TomlConfigHandler(MOD_ID, TOML);
+	}
 
 	@Override
     public void onInitialize() {

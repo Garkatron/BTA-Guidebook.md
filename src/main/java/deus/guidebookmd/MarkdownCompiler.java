@@ -2,8 +2,8 @@ package deus.guidebookmd;
 
 import deus.guidebookmd.components.*;
 import deus.guidebookmd.gui.MDPage;
-import deus.guidebookmd.gui.elements.MDPageConfig;
-import deus.guidebookmd.gui.Tuple;
+import deus.guidebookmd.config.PageConfig;
+import deus.guidebookmd.utils.Tuple;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class MarkdownCompiler {
 		String fullText = String.join("\n", lines);
 
 		// * Returns config and a clean text
-		Tuple<MDPageConfig, String> info = extractConfig(fullText);
+		Tuple<PageConfig, String> info = extractConfig(fullText);
 
 		fullText = info.y;
 
@@ -138,13 +138,13 @@ public class MarkdownCompiler {
 	 * @param fullText Markdown
 	 * @return A Tuple with the MDPageConfig and the clean String
 	 */
-	public static Tuple<MDPageConfig, String> extractConfig(String fullText) {
+	public static Tuple<PageConfig, String> extractConfig(String fullText) {
 		Matcher configMatcher = patterns.get(0).pattern.matcher(fullText);
 
 		if (configMatcher.find()) {
 			if ("config".equals(configMatcher.group(1))) {
 				try {
-					MDPageConfig config = MDPageConfig.fromJsonString(configMatcher.group(2));
+					PageConfig config = PageConfig.fromJsonString(configMatcher.group(2));
 
 					int start = configMatcher.start();
 					int end = configMatcher.end();
@@ -159,7 +159,7 @@ public class MarkdownCompiler {
 			}
 		}
 
-		return new Tuple<>(new MDPageConfig(), fullText);
+		return new Tuple<>(null, fullText);
 	}
 
 

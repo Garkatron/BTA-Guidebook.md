@@ -80,11 +80,6 @@ public class MDText extends MDComponent {
 			int color = part.color;
 			String text = part.text;
 
-
-			if(screen != null) {
-				argbColor = screen.getCurrentPage().config.argbFontColor;
-			}
-
 			if (centered) {
 				drawStringCentered(mc.font, text, drawX, drawY, color);
 			} else {

@@ -2,7 +2,7 @@ package deus.guidebookmd.gui;
 
 import deus.guidebookmd.MarkdownCompiler;
 import deus.guidebookmd.components.MDComponent;
-import deus.guidebookmd.gui.elements.MDBookConfig;
+import deus.guidebookmd.config.BookConfig;
 import net.minecraft.client.gui.ButtonElement;
 import net.minecraft.core.sound.SoundCategory;
 import org.lwjgl.opengl.GL11;
@@ -13,7 +13,7 @@ import java.util.Random;
 
 public class MDBookScreen extends MDScreen {
 
-	protected MDBookConfig config = new MDBookConfig(c->{});
+	protected BookConfig config = new BookConfig(c->{});
 
 	protected int currentPageNumber = -1;
 	protected final List<MDPage> pages = new ArrayList<>();
@@ -23,13 +23,7 @@ public class MDBookScreen extends MDScreen {
 
 	// ? Load markdown
 	public MDBookScreen() {
-		config = MDBookConfig.fromJsonResource(getClass(), "/assets/guidebookmd/markdown/default.json");
 
-		loadMarkdownPages("/assets/guidebookmd/markdown/test.md", "/assets/guidebookmd/markdown/test2.md",
-			"/assets/guidebookmd/markdown/test3.md",
-			"/assets/guidebookmd/markdown/test4.md",
-			"/assets/guidebookmd/markdown/test5.md");
-		shareReferenceToComponents();
 
 	}
 
@@ -39,6 +33,8 @@ public class MDBookScreen extends MDScreen {
 		xOffset = (width - 158) / 2;
 		yOffset = (height - 220) / 2;
 
+
+		shareReferenceToComponents();
 		//currentPage = getCurrentPage().mdComponents;
 
 	}
@@ -55,6 +51,9 @@ public class MDBookScreen extends MDScreen {
 			mc.textureManager.loadTexture(config.frontPage).bind();
 			drawTexturedModalRect(xOffset, yOffset, 0, 0, config.frontBackPageWH[0], config.frontBackPageWH[1]);
 		} else {
+			mc.textureManager.loadTexture(config.backPage).bind();
+			drawTexturedModalRect(xOffset + config.backPageOffsets[0], yOffset + config.backPageOffsets[1], 0, 0, config.frontBackPageWH[0], config.frontBackPageWH[1]);
+
 			// ? Draw pages
 			for (int i = 0; i < config.pageTexturePositions.length; i++) {
 				int pageIndex = currentPageNumber + i;
@@ -69,11 +68,11 @@ public class MDBookScreen extends MDScreen {
 
 					// ? Avoid 2 buttons in each page
 					if (config.pairButtons && pageIndex % 2 == 0) {
-						page.config.hasNextButton = true;
-						page.config.hasPreviousButton = false;
+						page.hasNextButton = true;
+						page.hasPreviousButton = false;
 					} else if (config.pairButtons) {
-						page.config.hasNextButton = false;
-						page.config.hasPreviousButton = true;
+						page.hasNextButton = false;
+						page.hasPreviousButton = true;
 					}
 
 					// ? Update mouse pos
@@ -93,13 +92,9 @@ public class MDBookScreen extends MDScreen {
 
 	// ? Logic functions
 	public void goBack() {
-		if (currentPageNumber == -1) {
-			currentPageNumber = 0;
-		} else {
-			currentPageNumber -= config.pageSkipAmount;
-			if (currentPageNumber < 0) currentPageNumber = pages.size() - 1;
-			playPageSound();
-		}
+		currentPageNumber -= config.pageSkipAmount;
+		if (currentPageNumber < 0) currentPageNumber = -1;
+		playPageSound();
 
 	}
 
@@ -185,4 +180,5 @@ public class MDBookScreen extends MDScreen {
 			}
 		}
 	}
+
 }

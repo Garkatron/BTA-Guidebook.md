@@ -4,9 +4,9 @@
   "version": "${version}",
 
   "name": "Guidebook.md",
-  "description": "This mod aims to help new BTA modders.",
+  "description": "This mod aims to help BTA modders.",
   "authors": [
-    "Turnip Labs"
+    "@Garkatron"
   ],
   "contact": {
     "homepage": "",
@@ -28,6 +28,9 @@
 			"deus.guidebookmd.Guidebookmd"
 		],
 		"recipesReady": [
+			"deus.guidebookmd.Guidebookmd"
+		],
+		"initModels": [
 			"deus.guidebookmd.Guidebookmd"
 		]
 	},

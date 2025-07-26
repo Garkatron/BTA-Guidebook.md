@@ -1,9 +1,9 @@
-package deus.guidebookmd.gui.elements;
+package deus.guidebookmd.config;
 
 import com.google.gson.Gson;
 import deus.guidebookmd.formats.MarkdownColor;
 
-public class MDPageConfig {
+public class PageConfig {
 	public int argbFontColor = MarkdownColor.get('0');
 	public String pageTexture = "/assets/minecraft/textures/gui/container/guidebook/guidebook.png";
 
@@ -14,11 +14,10 @@ public class MDPageConfig {
 	public boolean centeredMaxWidth = false;
 	public int pageTextureWidth = 158;
 	public int pageTextureHeight = 220;
-	public boolean hasNextButton = true;
-	public boolean hasPreviousButton = true;
 
-	public static MDPageConfig fromJsonString(String json) {
+
+	public static PageConfig fromJsonString(String json) {
 		Gson gson = new Gson();
-		return gson.fromJson(json, MDPageConfig.class);
+		return gson.fromJson(json, PageConfig.class);
 	}
 }

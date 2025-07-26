@@ -3,17 +3,17 @@ package deus.guidebookmd.gui.elements;
 import deus.guidebookmd.gui.MDPage;
 import org.lwjgl.opengl.GL11;
 
-public class MDPageTurnIndicator extends MDGui {
+public class PageTurnIndicator extends MDGui {
 	public String texture = "";
 	public int type = 0;
 	private final MDPage page; // Reference to parent MDPage to access screen
 
-	public MDPageTurnIndicator(int type, MDPage page) {
+	public PageTurnIndicator(int type, MDPage page) {
 		this.type = type;
 		this.page = page;
 	}
 
-	public MDPageTurnIndicator() {
+	public PageTurnIndicator() {
 		this.page = null;
 	}
 

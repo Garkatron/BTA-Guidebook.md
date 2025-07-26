@@ -1,4 +1,4 @@
-package deus.guidebookmd.gui;
+package deus.guidebookmd.utils;
 
 public class Tuple<X, Y> {
 	public final X x;

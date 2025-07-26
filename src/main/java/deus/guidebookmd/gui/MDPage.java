@@ -1,27 +1,29 @@
 package deus.guidebookmd.gui;
 
 import deus.guidebookmd.components.MDComponent;
-import deus.guidebookmd.gui.elements.MDBookConfig;
+import deus.guidebookmd.config.BookConfig;
 import deus.guidebookmd.gui.elements.MDGui;
-import deus.guidebookmd.gui.elements.MDPageConfig;
-import deus.guidebookmd.gui.elements.MDPageTurnIndicator;
+import deus.guidebookmd.config.PageConfig;
+import deus.guidebookmd.gui.elements.PageTurnIndicator;
 import org.lwjgl.opengl.GL11;
 
 import java.util.List;
 import java.util.Objects;
 
-import static deus.guidebookmd.gui.Utils.applyScissor;
+import static deus.guidebookmd.utils.RenderUtils.applyScissor;
 
 public class MDPage extends MDGui {
-	public MDPageConfig config;
+	public PageConfig config;
 	public int x = 0;
 	public int y = 0;
+	public boolean hasNextButton = true;
+	public boolean hasPreviousButton = true;
 	public MDBookScreen screen;
 	List<MDComponent> mdComponents;
-	private final MDPageTurnIndicator button0 = new MDPageTurnIndicator(0, this);
-	private final MDPageTurnIndicator button1 = new MDPageTurnIndicator(1, this);
+	private final PageTurnIndicator button0 = new PageTurnIndicator(0, this);
+	private final PageTurnIndicator button1 = new PageTurnIndicator(1, this);
 
-	public MDPage(MDPageConfig config, List<MDComponent> mdComponents) {
+	public MDPage(PageConfig config, List<MDComponent> mdComponents) {
 		this.config = config;
 		this.mdComponents = mdComponents;
 	}
@@ -63,35 +65,41 @@ public class MDPage extends MDGui {
 
 	public void render(int textXPos, int textYPos, int pageXTexturePos) {
 		// ? Book config
-		MDBookConfig bkConfig = screen.config;
-		mc.textureManager.loadTexture(config.pageTexture == null ? bkConfig.defaultPageTexture : config.pageTexture).bind();
+		BookConfig bkConfig = screen.config;
+
+		// ? Page config
+		PageConfig pageConfig = config == null ? screen.config.defaultPageConfig : config;
+
+		mc.textureManager.loadTexture(pageConfig.pageTexture == null ? bkConfig.defaultPageTexture : pageConfig.pageTexture).bind();
+
+
 
 		// ? Get button texture
-		button0.texture = config.pageTexture;
-		button1.texture = config.pageTexture;
+		button0.texture = pageConfig.pageTexture;
+		button1.texture = pageConfig.pageTexture;
 
 		// ? Draw background
-		drawTexturedModalRect(this.x + pageXTexturePos, this.y, 0, 0, config.pageTextureWidth, config.pageTextureHeight);
+		drawTexturedModalRect(this.x + pageXTexturePos, this.y, 0, 0, pageConfig.pageTextureWidth, pageConfig.pageTextureHeight);
 
 		// ? Apply mask to avoid text overflow
 		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		applyScissor(mc, this.x + textXPos, this.y, config.scissorWH[0], config.scissorWH[1], screen.width, screen.height);
+		applyScissor(mc, this.x + textXPos, this.y, pageConfig.scissorWH[0], pageConfig.scissorWH[1], screen.width, screen.height);
 
 		// ? Draw markdown text
-		drawPage(mdComponents, this.x + textXPos, this.y + textYPos, mx, my, screen.width, screen.yOffset, config.centered, screen.centeredMaxWidth);
+		drawPage(mdComponents, this.x + textXPos, textYPos, mx, my, screen.width, screen.yOffset, pageConfig.centered, screen.centeredMaxWidth);
 
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
 
 		// ? Avoid draw 2 buttons
-		if (config.hasNextButton) {
+		if (hasNextButton) {
 			button0.x = this.x + pageXTexturePos + 24;
-			button0.y = this.y + config.pageTextureHeight;
+			button0.y = this.y + pageConfig.pageTextureHeight;
 			button0.render();
 		}
 
-		if (config.hasPreviousButton) {
-			button1.x = this.x + pageXTexturePos + config.pageTextureWidth;
-			button1.y = this.y + config.pageTextureHeight;
+		if (hasPreviousButton) {
+			button1.x = this.x + pageXTexturePos + pageConfig.pageTextureWidth;
+			button1.y = this.y + pageConfig.pageTextureHeight;
 
 			button1.render();
 		}

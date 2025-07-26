@@ -7,8 +7,9 @@ Load config from asset path, include .md files.
 Use as a normal screen, opened from a trigger.
 
 **Formats**  
-```
+
 Use `< & >` chars for color codes:
+```
 - 0 = &0Black
 - 1 = &1Dark Blue
 - 2 = &2Dark Green
@@ -48,10 +49,10 @@ Regular &3Markdown syntax adapted for &6BTA Guidebook format:
 - ![slot](modid:item/name)
 - ![workbench](empty,empty,empty,empty,empty,empty,empty,empty,empty)
 ```
-- &6Width & Height in pixels
-- &6type = default | icon (no text)
+- Width & Height in pixels
+- type = default | icon or (no text) to use default option
 
-&cMore info on the mod's GitHub wiki!
+More info on the mod's GitHub wiki!
 
 # How to use?
 ### Markdown guidebook

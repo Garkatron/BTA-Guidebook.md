@@ -22,9 +22,4 @@ public class MDScreen extends Screen {
 		super.render(mx, my, partialTick);
 		drawPage(currentPage, startY, xOffset, mx, my, width, yOffset, centered, centeredMaxWidth);
 	}
-
-
-
-
-
 }

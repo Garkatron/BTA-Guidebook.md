@@ -9,6 +9,8 @@ public class MDGui extends Gui {
 	public int y = 0;
 	public int mx = 0;
 	public int my = 0;
+	public int width = 0;
+	public int height = 0;
 
 
 

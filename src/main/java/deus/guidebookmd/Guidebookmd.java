@@ -82,6 +82,12 @@ public class Guidebookmd implements ModInitializer, RecipeEntrypoint, GameStartE
 				model.icon = TextureRegistry.getTexture(Items.MD_ITEM_GUIDE.namespaceID);
 				return model;
 			});
+		ModelHelper.setItemModel(Items.MD_ITEM_EDITOR_BOOK,
+			() -> {
+				ItemModelStandard model = new ItemModelStandard(Items.MD_ITEM_EDITOR_BOOK, MOD_ID);
+				model.icon = TextureRegistry.getTexture(Items.MD_ITEM_EDITOR_BOOK.namespaceID);
+				return model;
+			});
 	}
 
 	@Override

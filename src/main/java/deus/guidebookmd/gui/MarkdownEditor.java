@@ -1,5 +1,6 @@
 package deus.guidebookmd.gui;
 
+import deus.guidebookmd.MarkdownCompiler;
 import deus.guidebookmd.components.MDComponent;
 import deus.guidebookmd.gui.elements.TextArea;
 import net.minecraft.client.gui.Screen;
@@ -21,10 +22,8 @@ public class MarkdownEditor extends Screen {
 	}
 
 	public MarkdownEditor() {
-		textArea.text.add("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 		textArea.x = 0;
 		textArea.y = 0;
-
 	}
 
 	@Override
@@ -33,11 +32,18 @@ public class MarkdownEditor extends Screen {
 
 		textArea.width = width/2;
 		textArea.height = height;
+		mdComponents = MarkdownCompiler.compile(textArea.getLines()).mdComponents;
 
-		//drawPage(mdComponents, (int)width/2, 0, mx,my,(int)width/2, 0, false, false);
+		drawPage(mdComponents, (width/2)+10, 0, mx,my,(int)width/2, 0, false, false);
 		textArea.updateMousePos(mx,my);
 		textArea.update();
 		textArea.render();
 		super.render(mx,my,partialTick);
 	}
+
+	@Override
+	public void keyPressed(char eventCharacter, int eventKey, int mx, int my) {
+
+	}
 }
+

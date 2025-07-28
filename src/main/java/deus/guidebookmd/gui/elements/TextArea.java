@@ -1,89 +1,185 @@
 package deus.guidebookmd.gui.elements;
 
-import deus.guidebookmd.gui.elements.MDGui;
 import deus.guidebookmd.utils.Signal;
-import net.minecraft.client.gui.text.ITextField;
-import net.minecraft.client.render.tessellator.Tessellator;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class TextArea extends MDGui {
 
 	private boolean wasClicked = false;
 	private boolean wasClickedOut = false;
 
-	public List<String> text = new ArrayList<>();
-	protected int cursorPosition = 0;
+	public List<Character> characters = new ArrayList<>();
+	protected int currentCharPos = 0;
+	protected int currentLine = 1;
+	protected int currentLineCharCount = 1;
+
+
 	protected long lastCursorToggle = 0;
 	protected boolean drawCursor = true;
 	protected boolean drawBackground = true;
 
-	protected int currentIndex = 0;
+	protected int cursorX = 0;
+	protected int cursorY = 0;
+
+	protected boolean select = false;
+	protected int selectStartChar = 0;
+	protected int selectLastChar = 0;
+
+	protected boolean isCtrl = false;
+	protected boolean isShift = false;
+
+	int focusBackgroundColor = 0xFF000000;
+	int focusTextColor = 0xFFE9C46A;
+	int focusBorderColor = 0xFFE9C46A;
+
+	int defaultBackgroundColor = 0xFF000000;
+	int defaultTextColor = 0xFFFFFFFF;
+	int defaultBorderColor = 0xFFFFFFFF;
+
+	int cursorBlinkInterval = 500;
+
+	String cursorCharacter = "_";
+
+
+	protected final List<List<Character>> clipboard = new ArrayList<>();
 
 	public final Signal<String> textChangedSignal = new Signal<>();
 	private boolean focused = false;
 
 	protected int maxTextLength = 20;
+	protected int textOffsetX = 12;
+	protected int minTextOffsetx = 12;
+
+	public TextArea() {
+		currentCharPos = characters.size();
+	}
 
 	public boolean isHovered() {
 		return mx >= x && my >= y && mx < x + width && my < y + height;
 	}
 
 
-
-	@Override
-	public void render() {
-		int focusBackgroundColor = 0xFF000000;
-		int focusTextColor = 0xFFE9C46A;
-		int focusBorderColor = 0xFFE9C46A;
-
-		int defaultBackgroundColor = 0xFF000000;
-		int defaultTextColor = 0xFFFFFFFF;
-		int defaultBorderColor = 0xFFFFFFFF;
-
-		int cursorBlinkInterval = 500;
-
-		String cursorCharacter = "_";
-
-
+	protected void drawBackground() {
 		int backgroundColor = focused ? focusBackgroundColor : defaultBackgroundColor;
-		int textColor = focused ? focusTextColor : defaultTextColor;
 		int borderColor = focused ? focusBorderColor : defaultBorderColor;
 
-		this.drawRect(this.x - 1, this.y - 1, this.x + width + 1, this.y + height + 1, borderColor);
-		this.drawRect(this.x, this.y, this.x + width, this.y + height, backgroundColor);
-		//if (drawBackground) {
+		this.drawRect(this.x - 1, this.y - 1, this.x + width + 1 + textOffsetX, this.y + height + 1, borderColor);
+		this.drawRect(this.x, this.y, this.x + width + textOffsetX, this.y + height, backgroundColor);
+	}
 
-		//}
-
+	protected void drawText() {
+		int textColor = focused ? focusTextColor : defaultTextColor;
 		int lineHeight = this.mc.font.fontHeight;
 		int textStartY = this.y + 4;
 
-		for (int i = 0; i < text.size(); i++) {
-			String line = text.get(i);
-			this.drawString(this.mc.font, line, this.x + 4, textStartY + (lineHeight * i), textColor);
+		StringBuilder lineBuffer = new StringBuilder();
+		int drawY = textStartY;
+
+		int lineCharCount = 0;
+		int cursorLine = 0;
+		int pixelX = 0;
+
+		int tempCharPos = 0;
+
+		cursorX = 4;
+		cursorY = 4;
+
+		for (int i = 0; i < characters.size(); i++) {
+			char c = characters.get(i);
+
+			if (tempCharPos == currentCharPos) {
+				cursorX = 4 + pixelX;
+				cursorY = 4 + (cursorLine * lineHeight);
+			}
+
+			if (c == '\n' || lineCharCount >= maxTextLength) {
+				this.drawString(this.mc.font, lineBuffer.toString(), this.x + textOffsetX, drawY, textColor);
+				drawY += lineHeight;
+				lineBuffer.setLength(0);
+				lineCharCount = 0;
+				pixelX = 0;
+				cursorLine++;
+
+				if (c != '\n') {
+					lineBuffer.append(c);
+					pixelX += this.mc.font.getCharWidth(c);
+					lineCharCount++;
+				}
+			} else {
+				lineBuffer.append(c);
+				pixelX += this.mc.font.getCharWidth(c);
+				lineCharCount++;
+
+			}
+			tempCharPos++;
 		}
 
-		if (focused) {
-			long currentTime = System.currentTimeMillis();
-			if (currentTime - lastCursorToggle > cursorBlinkInterval) {
-				drawCursor = !drawCursor;
-				lastCursorToggle = currentTime;
-			}
+		if (tempCharPos == currentCharPos) {
+			cursorX = textOffsetX + pixelX;
+			cursorY = 4 + (cursorLine * lineHeight);
+		}
 
-			if (drawCursor && currentIndex < text.size()) {
-				int cursorX = this.x + 4 + this.mc.font.getStringWidth(text.get(currentIndex).substring(0, cursorPosition));
-				int cursorY = textStartY + (lineHeight * currentIndex);
-				this.drawString(this.mc.font, cursorCharacter, cursorX, cursorY, textColor);
-			}
+		currentLineCharCount = lineCharCount;
+		currentLine = cursorLine;
+
+
+		for (int i = 0; i < cursorLine; i++) {
+			this.drawString(this.mc.font, i+"", this.x, this.y + 4 + (i * mc.font.fontHeight), 0x252525);
+		}
+
+		if (lineBuffer.length() > 0) {
+			this.drawString(this.mc.font, lineBuffer.toString(), this.x + textOffsetX, drawY, textColor);
 		}
 	}
 
+
+	protected void drawCursor() {
+		String line = currentLine + "-";
+		String lineCharCount = String.valueOf(currentLineCharCount);
+		this.drawString(this.mc.font, cursorCharacter, this.x + cursorX, this.y + cursorY, 0xff0000);
+
+		this.drawString(this.mc.font, "|", this.x + width-1+textOffsetX, this.y + cursorY, 0xff0000);
+		this.drawString(this.mc.font, cursorCharacter, this.x + cursorX, this.y-7, 0xff0000);
+
+		this.drawString(this.mc.font, line, this.x, this.y + cursorY + mc.font.fontHeight*2, 0xb2b3b3);
+		this.drawString(this.mc.font, lineCharCount, this.x + mc.font.getStringWidth(line), this.y + cursorY + mc.font.fontHeight*2, 0xb2b3b3);
+	}
+
+	@Override
+	public void render() {
+
+		//if (drawBackground) {
+		drawBackground();
+		//}
+
+		drawText();
+		drawCursor();
+//		for (int i = 0; i < currentLine; i++) {
+//			String text = characters.subList(i * maxTextLength, maxTextLength).toString();
+//			this.drawString(this.mc.font, text, this.x + 4, textStartY + (lineHeight * i), textColor);
+//
+//			if (focused) {
+//				long currentTime = System.currentTimeMillis();
+//				if (currentTime - lastCursorToggle > cursorBlinkInterval) {
+//					drawCursor = !drawCursor;
+//					lastCursorToggle = currentTime;
+//				}
+//
+//				if (drawCursor && currentCharPos < characters.size()) {
+//
+//					int cursorX = this.x + 4 + this.mc.font.getStringWidth(text);
+//					int cursorY = textStartY + (lineHeight * currentCharPos);
+//					this.drawString(this.mc.font, cursorCharacter, cursorX, cursorY, textColor);
+//				}
+//			}
+//		}
+
+
+	}
 
 
 	@Override
@@ -147,88 +243,222 @@ public class TextArea extends MDGui {
 
 	@Override
 	public void update() {
+		maxTextLength = (width/6)-1;
 
-		if (focused) {
-			while (Keyboard.next()) {
-				if (Keyboard.getEventKeyState()) {
-					int key = Keyboard.getEventKey();
-					char character = Keyboard.getEventCharacter();
+		isCtrl = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL);
+		isShift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
 
-					if (key == Keyboard.KEY_BACK) {
-						deleteCharacter();
+		textOffsetX = Math.max(minTextOffsetx, mc.font.getStringWidth(currentLine+"")+1);
 
-
-					} else if (key == Keyboard.KEY_ESCAPE) {
-						focused = false;
+		if (!focused) return;
 
 
-					} else if (key == Keyboard.KEY_RETURN) {
-						currentIndex++;
-						if (currentIndex >= text.size()) {
-							text.add("");
-						}
-						cursorPosition = 0;
-						height += 10;
+		if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_BACK)) {
+			deleteWord();
+			return;
+		}
 
+		if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_DELETE)) {
+			deleteWord();
 
-					} else if (key == Keyboard.KEY_LEFT) {
-						if (cursorPosition > 0) {
-							cursorPosition -= 1;
-						} else if (currentIndex > 0) {
-							currentIndex--;
-							cursorPosition = text.get(currentIndex).length();
-						}
+			return;
+		}
 
-					} else if (key == Keyboard.KEY_RIGHT) {
-						if (cursorPosition < text.get(currentIndex).length()) {
-							cursorPosition += 1;
-						} else if (currentIndex < text.size() - 1) {
-							currentIndex++;
-							cursorPosition = 0;
-						}
+		while (Keyboard.next()) {
+			if (Keyboard.getEventKeyState()) {
+				int key = Keyboard.getEventKey();
+				char character = Keyboard.getEventCharacter();
 
-						//&& isCharacterAllowed(character)
-					} else if (character != 0 ) {
-						addCharacter(character);
+				if (isShift && key == Keyboard.KEY_LEFT) {
+					if (!select) {
+						selectStartChar = currentCharPos;
+						select = true;
 					}
+					if (currentCharPos > 0) {
+						currentCharPos--;
+					}
+					selectLastChar = currentCharPos;
+					return;
+				}
+
+				if (isShift && key == Keyboard.KEY_RIGHT) {
+					if (!select) {
+						selectStartChar = currentCharPos;
+						select = true;
+					}
+					if (currentCharPos < characters.size()) {
+						currentCharPos++;
+					}
+					selectLastChar = currentCharPos;
+					return;
+				}
+
+				if (key == Keyboard.KEY_C && isCtrl) {
+					if (selectStartChar != selectLastChar) {
+						int from = Math.min(selectStartChar, selectLastChar);
+						int to = Math.max(selectStartChar, selectLastChar);
+						copy(from, to);
+					}
+					return;
+				} else if (isCtrl && Keyboard.isKeyDown(Keyboard.KEY_V)) {
+					paste();
+					select = false;
+
+				} else if (key == Keyboard.KEY_BACK) {
+					deleteCharacter();
+
+				} else if (key == Keyboard.KEY_ESCAPE) {
+					focused = false;
+
+				} else if (key == Keyboard.KEY_RETURN) {
+					jumpLine();
+
+				} else if (key == Keyboard.KEY_LEFT) {
+				if (currentCharPos > 0) {
+					currentCharPos--;
+				}
+
+				} else if (key == Keyboard.KEY_RIGHT) {
+					if (currentCharPos < characters.size()) {
+						currentCharPos++;
+					}
+				}  else if (Character.isDefined(character) && !Character.isISOControl(character)) {
+					addCharacter(character);
 				}
 			}
 		}
 	}
 
+	protected void paste() {
+		if (!clipboard.isEmpty()) {
+			characters.addAll(currentCharPos, clipboard.get(clipboard.size()-1));
+			currentCharPos = characters.size();
+		}
+	}
+
+	protected void copy(int start, int end) {
+		int from = Math.min(start, end);
+		int to = Math.max(start, end);
+
+		clipboard.add(new ArrayList<>(characters.subList(from, to)));
+
+
+	}
+
+	protected void cut(int start, int end) {
+		copy(start, end);
+		int from = Math.min(start, end);
+		int to = Math.max(start, end);
+		for (int i = 0; i < to - from; i++) {
+			characters.remove(from);
+		}
+	}
+
+	private boolean isSpace(char c) {
+		return c == ' ' || c == '\n';
+	}
+	private boolean wordDeleteIgnore(char c) {
+		return isSpace(c) || c == '.' || c == ',';
+	}
+
+	private boolean isAtEnd() {
+		return characters.isEmpty();
+	}
+
+	private char peek() {
+		return characters.get(currentCharPos-1);
+	}
+
+
+	private char peekPrev() {
+		if (characters.isEmpty()) return '\0';
+		return characters.get(currentCharPos-2);
+	}
+
+	private void deleteWord() {
+		while (!isAtEnd() && !isSpace(peek()) && !wordDeleteIgnore(peek())) {
+			deleteCharacter();
+		}
+	}
+	private void jumpLine() {
+		addCharacter('\n');
+
+		//height += this.mc.font.fontHeight + 2;
+	}
 	private void deleteCharacter() {
 		if (focused) {
-			if (cursorPosition > 0) {
-				text.set(currentIndex, text.get(currentIndex).substring(0, cursorPosition - 1) + text.get(currentIndex).substring(cursorPosition));
-				cursorPosition = Math.max(0, cursorPosition - 1);
-				textChangedSignal.emit(text.get(currentIndex));
-			} else if (currentIndex > 0) {
-				String previousLine = text.get(currentIndex - 1);
-				String currentLine = text.get(currentIndex);
-				text.set(currentIndex - 1, previousLine + currentLine);
-				text.remove(currentIndex);
-				height -=10;
-				currentIndex--;
-				cursorPosition = previousLine.length();
-				textChangedSignal.emit(text.get(currentIndex));
+			if (currentCharPos > 0) {
+				//text.set(currentIndex, text.get(currentIndex).substring(0, cursorPosition - 1) + text.get(currentIndex).substring(cursorPosition));
+
+				//int endIndex = Math.min(charIndex + maxTextLength, characters.size());
+
+
+				characters.remove(currentCharPos-1);
+				currentCharPos--;
+
+
+				//cursorPosition = Math.max(0, cursorPosition - 1);
+				//!
+				//textChangedSignal.emit(characters.get(currentCharPos).toString());
+			}
+//			else if (currentIndex > 0) {
+//				String previousLine = text.get(currentIndex - 1);
+//				String currentLine = text.get(currentIndex);
+//				text.set(currentIndex - 1, previousLine + currentLine);
+//				text.remove(currentIndex);
+//				height -=10;
+//				currentIndex--;
+//				cursorPosition = previousLine.length();
+//				textChangedSignal.emit(text.get(currentIndex));
+//			}
+		}
+	}
+
+	public List<String> getLines() {
+		List<String> lines = new ArrayList<>();
+		StringBuilder lineBuffer = new StringBuilder();
+		int lineCharCount = 0;
+
+		for (int i = 0; i < characters.size(); i++) {
+			char c = characters.get(i);
+
+			if (c == '\n') {
+				lines.add(lineBuffer.toString());
+				lineBuffer.setLength(0);
+				lineCharCount = 0;
+			} else {
+				lineBuffer.append(c);
+				lineCharCount++;
+
+				if (lineCharCount >= maxTextLength) {
+					lines.add(lineBuffer.toString());
+					lineBuffer.setLength(0);
+					lineCharCount = 0;
+				}
 			}
 		}
+
+		if (lineBuffer.length() > 0) {
+			lines.add(lineBuffer.toString());
+		}
+
+		return lines;
 	}
+
 
 	private void addCharacter(char character) {
-		if (text.get(currentIndex).length() < maxTextLength) {
-			text.set(currentIndex, text.get(currentIndex).substring(0, cursorPosition) + character + text.get(currentIndex).substring(cursorPosition));
-			cursorPosition++;
-			textChangedSignal.emit(text.get(currentIndex));
-		}
+		characters.add(character);
+		currentCharPos++;
+
+
+
+//		if (text.get(currentIndex).length() < maxTextLength) {
+//			text.set(currentIndex, text.get(currentIndex).substring(0, cursorPosition) + character + text.get(currentIndex).substring(cursorPosition));
+//			cursorPosition++;
+//			textChangedSignal.emit(text.get(currentIndex));
+//		}
 	}
 
-	public void setText(String newText) {
-		if (!this.text.equals(newText)) {
-			text.set(currentIndex, newText);
-			cursorPosition = text.get(currentIndex).length();
-			textChangedSignal.emit(text.get(currentIndex));
-		}
-	}
+
 
 }

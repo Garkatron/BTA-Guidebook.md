@@ -34,10 +34,12 @@ public class MarkdownEditor extends Screen {
 		textArea.height = height;
 		mdComponents = MarkdownCompiler.compile(textArea.getLines()).mdComponents;
 
-		drawPage(mdComponents, (width/2)+10, 0, mx,my,(int)width/2, 0, false, false);
 		textArea.updateMousePos(mx,my);
 		textArea.update();
 		textArea.render();
+
+		drawPage(mdComponents, textArea.width + 20, 0, mx,my,(int)width/2, 0, false, false);
+
 		super.render(mx,my,partialTick);
 	}
 

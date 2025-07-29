@@ -7,31 +7,48 @@ import org.lwjgl.input.Mouse;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ */
 public class TextArea extends MDGui {
 
+	// ? State
 	private boolean wasClicked = false;
 	private boolean wasClickedOut = false;
+	private boolean focused = false;
 
 	public List<Character> characters = new ArrayList<>();
 	protected int currentCharPos = 0;
 	protected int currentLine = 1;
 	protected int currentLineCharCount = 1;
+	protected final List<List<Character>> clipboard = new ArrayList<>();
 
+	// * Selection
+	protected boolean isSelecting = false;
+	protected int selectStartChar = 0;
+	protected int selectLastChar = 0;
 
-	protected long lastCursorToggle = 0;
-	protected boolean drawCursor = true;
+	// ? Drawing
 	protected boolean drawBackground = true;
+	protected boolean drawLineCharCount = true;
+	protected boolean drawLineCount = true;
+	protected boolean drawExtraCursors = true;
 
 	protected int cursorX = 0;
 	protected int cursorY = 0;
 
-	protected boolean select = false;
-	protected int selectStartChar = 0;
-	protected int selectLastChar = 0;
+	// * Animation
+	int cursorBlinkInterval = 500;
+	private long lastCursorToggle = 0;
+	private boolean drawCursor = true;
 
-	protected boolean isCtrl = false;
-	protected boolean isShift = false;
+	String cursorCharacter = "_";
 
+	protected int maxTextLength = 20;
+	protected int textOffsetX = 12;
+	protected int minTextOffsetx = 12;
+
+	// * Colors
 	int focusBackgroundColor = 0xFF000000;
 	int focusTextColor = 0xFFE9C46A;
 	int focusBorderColor = 0xFFE9C46A;
@@ -40,29 +57,48 @@ public class TextArea extends MDGui {
 	int defaultTextColor = 0xFFFFFFFF;
 	int defaultBorderColor = 0xFFFFFFFF;
 
-	int cursorBlinkInterval = 500;
+	// ? Keys
+	protected boolean isCtrl = false;
+	protected boolean isShift = false;
 
-	String cursorCharacter = "_";
-
-
-	protected final List<List<Character>> clipboard = new ArrayList<>();
-
+	// ? API
 	public final Signal<String> textChangedSignal = new Signal<>();
-	private boolean focused = false;
-
-	protected int maxTextLength = 20;
-	protected int textOffsetX = 12;
-	protected int minTextOffsetx = 12;
 
 	public TextArea() {
 		currentCharPos = characters.size();
 	}
 
-	public boolean isHovered() {
-		return mx >= x && my >= y && mx < x + width && my < y + height;
+	// ? Functions
+	protected void paste() {
+		if (!clipboard.isEmpty()) {
+			characters.addAll(currentCharPos, clipboard.get(clipboard.size()-1));
+			currentCharPos = characters.size();
+		}
 	}
 
+	protected void copy(int start, int end) {
+		int from = Math.min(start, end);
+		int to = Math.max(start, end);
 
+		clipboard.add(new ArrayList<>(characters.subList(from, to)));
+	}
+
+	protected void cut(int start, int end) {
+		copy(start, end);
+		int from = Math.min(start, end);
+		int to = Math.max(start, end);
+		for (int i = 0; i < to - from; i++) {
+			characters.remove(from);
+		}
+	}
+
+	private void deleteWord() {
+		while (!isAtEnd() && !isSpace(peek()) && !wordDeleteIgnore(peek())) {
+			deleteCharacter();
+		}
+	}
+
+	// ? Drawing functions
 	protected void drawBackground() {
 		int backgroundColor = focused ? focusBackgroundColor : defaultBackgroundColor;
 		int borderColor = focused ? focusBorderColor : defaultBorderColor;
@@ -127,8 +163,10 @@ public class TextArea extends MDGui {
 		currentLine = cursorLine;
 
 
-		for (int i = 0; i < cursorLine; i++) {
-			this.drawString(this.mc.font, i+"", this.x, this.y + 4 + (i * mc.font.fontHeight), 0x252525);
+		if (drawLineCount) {
+			for (int i = 0; i < cursorLine; i++) {
+				this.drawString(this.mc.font, i+"", this.x, this.y + 4 + (i * mc.font.fontHeight), 0x252525);
+			}
 		}
 
 		if (lineBuffer.length() > 0) {
@@ -136,14 +174,18 @@ public class TextArea extends MDGui {
 		}
 	}
 
-
 	protected void drawCursor() {
-		String line = currentLine + "-";
-		String lineCharCount = String.valueOf(currentLineCharCount);
 		this.drawString(this.mc.font, cursorCharacter, this.x + cursorX, this.y + cursorY, 0xff0000);
+	}
 
+	protected void drawAlternativeCursors() {
 		this.drawString(this.mc.font, "|", this.x + width-1+textOffsetX, this.y + cursorY, 0xff0000);
 		this.drawString(this.mc.font, cursorCharacter, this.x + cursorX, this.y-7, 0xff0000);
+	}
+
+	protected void drawLineCharCount() {
+		String line = currentLine + "-";
+		String lineCharCount = String.valueOf(currentLineCharCount);
 
 		this.drawString(this.mc.font, line, this.x, this.y + cursorY + mc.font.fontHeight*2, 0xb2b3b3);
 		this.drawString(this.mc.font, lineCharCount, this.x + mc.font.getStringWidth(line), this.y + cursorY + mc.font.fontHeight*2, 0xb2b3b3);
@@ -151,37 +193,14 @@ public class TextArea extends MDGui {
 
 	@Override
 	public void render() {
-
-		//if (drawBackground) {
-		drawBackground();
-		//}
-
+		if (drawBackground) drawBackground();
+		if (drawLineCharCount) drawLineCharCount();
 		drawText();
-		drawCursor();
-//		for (int i = 0; i < currentLine; i++) {
-//			String text = characters.subList(i * maxTextLength, maxTextLength).toString();
-//			this.drawString(this.mc.font, text, this.x + 4, textStartY + (lineHeight * i), textColor);
-//
-//			if (focused) {
-//				long currentTime = System.currentTimeMillis();
-//				if (currentTime - lastCursorToggle > cursorBlinkInterval) {
-//					drawCursor = !drawCursor;
-//					lastCursorToggle = currentTime;
-//				}
-//
-//				if (drawCursor && currentCharPos < characters.size()) {
-//
-//					int cursorX = this.x + 4 + this.mc.font.getStringWidth(text);
-//					int cursorY = textStartY + (lineHeight * currentCharPos);
-//					this.drawString(this.mc.font, cursorCharacter, cursorX, cursorY, textColor);
-//				}
-//			}
-//		}
-
-
+		if (drawCursor) drawCursor();
+		if (drawExtraCursors) drawAlternativeCursors();
 	}
 
-
+	// ? Logic Functions
 	@Override
 	public void updateMousePos(int mx, int my) {
 		super.updateMousePos(mx, my);
@@ -226,20 +245,6 @@ public class TextArea extends MDGui {
 			}
 		}
 	}
-	public void whilePressed() {
-	}
-
-	public void onPush() {
-		focused = true;
-	}
-
-	public void onPushOut() {
-		focused = false;
-	}
-
-	public void onRelease() {
-	}
-
 
 	@Override
 	public void update() {
@@ -252,6 +257,11 @@ public class TextArea extends MDGui {
 
 		if (!focused) return;
 
+		long currentTime = System.currentTimeMillis();
+		if (currentTime - lastCursorToggle > cursorBlinkInterval) {
+			drawCursor = !drawCursor;
+			lastCursorToggle = currentTime;
+		}
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_BACK)) {
 			deleteWord();
@@ -270,9 +280,9 @@ public class TextArea extends MDGui {
 				char character = Keyboard.getEventCharacter();
 
 				if (isShift && key == Keyboard.KEY_LEFT) {
-					if (!select) {
+					if (!isSelecting) {
 						selectStartChar = currentCharPos;
-						select = true;
+						isSelecting = true;
 					}
 					if (currentCharPos > 0) {
 						currentCharPos--;
@@ -282,9 +292,9 @@ public class TextArea extends MDGui {
 				}
 
 				if (isShift && key == Keyboard.KEY_RIGHT) {
-					if (!select) {
+					if (!isSelecting) {
 						selectStartChar = currentCharPos;
-						select = true;
+						isSelecting = true;
 					}
 					if (currentCharPos < characters.size()) {
 						currentCharPos++;
@@ -302,7 +312,7 @@ public class TextArea extends MDGui {
 					return;
 				} else if (isCtrl && Keyboard.isKeyDown(Keyboard.KEY_V)) {
 					paste();
-					select = false;
+					isSelecting = false;
 
 				} else if (key == Keyboard.KEY_BACK) {
 					deleteCharacter();
@@ -329,34 +339,11 @@ public class TextArea extends MDGui {
 		}
 	}
 
-	protected void paste() {
-		if (!clipboard.isEmpty()) {
-			characters.addAll(currentCharPos, clipboard.get(clipboard.size()-1));
-			currentCharPos = characters.size();
-		}
-	}
-
-	protected void copy(int start, int end) {
-		int from = Math.min(start, end);
-		int to = Math.max(start, end);
-
-		clipboard.add(new ArrayList<>(characters.subList(from, to)));
-
-
-	}
-
-	protected void cut(int start, int end) {
-		copy(start, end);
-		int from = Math.min(start, end);
-		int to = Math.max(start, end);
-		for (int i = 0; i < to - from; i++) {
-			characters.remove(from);
-		}
-	}
-
+	// ? Helper
 	private boolean isSpace(char c) {
 		return c == ' ' || c == '\n';
 	}
+
 	private boolean wordDeleteIgnore(char c) {
 		return isSpace(c) || c == '.' || c == ',';
 	}
@@ -369,49 +356,32 @@ public class TextArea extends MDGui {
 		return characters.get(currentCharPos-1);
 	}
 
-
 	private char peekPrev() {
 		if (characters.isEmpty()) return '\0';
 		return characters.get(currentCharPos-2);
 	}
 
-	private void deleteWord() {
-		while (!isAtEnd() && !isSpace(peek()) && !wordDeleteIgnore(peek())) {
-			deleteCharacter();
-		}
+	public boolean isHovered() {
+		return mx >= x && my >= y && mx < x + width && my < y + height;
 	}
-	private void jumpLine() {
-		addCharacter('\n');
 
-		//height += this.mc.font.fontHeight + 2;
+	// ? Utility
+	private void addCharacter(char character) {
+		characters.add(character);
+		currentCharPos++;
 	}
+
 	private void deleteCharacter() {
 		if (focused) {
 			if (currentCharPos > 0) {
-				//text.set(currentIndex, text.get(currentIndex).substring(0, cursorPosition - 1) + text.get(currentIndex).substring(cursorPosition));
-
-				//int endIndex = Math.min(charIndex + maxTextLength, characters.size());
-
-
 				characters.remove(currentCharPos-1);
 				currentCharPos--;
-
-
-				//cursorPosition = Math.max(0, cursorPosition - 1);
-				//!
-				//textChangedSignal.emit(characters.get(currentCharPos).toString());
 			}
-//			else if (currentIndex > 0) {
-//				String previousLine = text.get(currentIndex - 1);
-//				String currentLine = text.get(currentIndex);
-//				text.set(currentIndex - 1, previousLine + currentLine);
-//				text.remove(currentIndex);
-//				height -=10;
-//				currentIndex--;
-//				cursorPosition = previousLine.length();
-//				textChangedSignal.emit(text.get(currentIndex));
-//			}
 		}
+	}
+
+	private void jumpLine() {
+		addCharacter('\n');
 	}
 
 	public List<String> getLines() {
@@ -445,20 +415,19 @@ public class TextArea extends MDGui {
 		return lines;
 	}
 
-
-	private void addCharacter(char character) {
-		characters.add(character);
-		currentCharPos++;
-
-
-
-//		if (text.get(currentIndex).length() < maxTextLength) {
-//			text.set(currentIndex, text.get(currentIndex).substring(0, cursorPosition) + character + text.get(currentIndex).substring(cursorPosition));
-//			cursorPosition++;
-//			textChangedSignal.emit(text.get(currentIndex));
-//		}
+	// ? API
+	public void whilePressed() {
 	}
 
+	public void onPush() {
+		focused = true;
+	}
 
+	public void onPushOut() {
+		focused = false;
+	}
+
+	public void onRelease() {
+	}
 
 }

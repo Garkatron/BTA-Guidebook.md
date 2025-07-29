@@ -1,28 +1,26 @@
 package deus.guidebookmd.gui.elements;
 
 import deus.guidebookmd.gui.MDPage;
+import net.minecraft.client.gui.paged.Page;
 import org.lwjgl.opengl.GL11;
 
-public class PageTurnIndicator extends MDGui {
-	public String texture = "";
+public class PageTurnIndicator extends PageButton {
+
 	public int type = 0;
-	private final MDPage page; // Reference to parent MDPage to access screen
-
 	public PageTurnIndicator(int type, MDPage page) {
+		super(page, "");
 		this.type = type;
-		this.page = page;
+		size=24;
 	}
 
-	public PageTurnIndicator() {
-		this.page = null;
-	}
+
+
 
 	@Override
 	public void render() {
-		int size = 24;
-
 		this.mc.textureManager.bindTexture(this.mc.textureManager.loadTexture(texture));
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+
 
 		int left = x - size;
 		int top = y - size;
@@ -40,10 +38,9 @@ public class PageTurnIndicator extends MDGui {
 		}
 	}
 
-
 	@Override
 	public void mouseClick(int mx, int my) {
-		if (page == null || page.screen == null) return;
+		super.mouseClick(mx, my);
 
 		int size = 24;
 		int left = x - size;

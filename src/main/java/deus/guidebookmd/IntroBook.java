@@ -1,9 +1,10 @@
 package deus.guidebookmd;
 
+import deus.guidebookmd.gui.MDPage;
 import deus.guidebookmd.gui.MarkdownGuidebook;
 import deus.guidebookmd.config.BookConfig;
 
-public class IntroBook extends MarkdownGuidebook {
+public class IntroBook extends MarkdownGuidebook<MDPage> {
 
 	public IntroBook() {
 		String path = "/assets/guidebookmd/markdown/mdbook/";

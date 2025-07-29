@@ -54,6 +54,7 @@ public class TextArea extends MDGui {
 
 	public boolean autoWrap = true;
 	public int maxTextLength = 20;
+	public int maxLines = 22;
 	protected int textOffsetX = 12;
 	public int minTextOffsetx = 12;
 
@@ -208,7 +209,7 @@ public class TextArea extends MDGui {
 
 			char c = characters.get(i);
 
-			if (c == '\n' || lineCharCount >= maxTextLength) {
+			if (c == '\n' || lineCharCount >= maxTextLength && cursorLine < maxLines + 1) {
 				this.drawString(this.mc.font, lineBuffer.toString(), this.x + textOffsetX, drawY, textColor);
 				drawY += lineHeight;
 				lineBuffer.setLength(0);
@@ -221,7 +222,7 @@ public class TextArea extends MDGui {
 					pixelX += this.mc.font.getCharWidth(c);
 					lineCharCount++;
 				}
-			} else {
+			} else if (cursorLine < maxLines + 1){
 				lineBuffer.append(c);
 				pixelX += this.mc.font.getCharWidth(c);
 				lineCharCount++;
@@ -238,7 +239,7 @@ public class TextArea extends MDGui {
 
 
 		currentLineCharCount = lineCharCount;
-		currentLine = cursorLine;
+		currentLine = cursorLine + 1;
 
 
 		if (drawLineCount) {
@@ -458,16 +459,29 @@ public class TextArea extends MDGui {
 		return characters.get(currentCharPos-2);
 	}
 
+	public boolean isFocused() {
+		return focused;
+	}
+
 	public boolean isHovered() {
 		return mx >= x && my >= y && mx < x + width && my < y + height;
 	}
 
 	// ? Utility
 	private void addCharacter(char character) {
-		characters.add(character);
-		currentCharPos++;
+		if (currentLineCharCount >= maxTextLength && character != '\n') {
+			if (autoWrap && currentLine < maxLines + 1) {
+				jumpLine();
+			} else {
+				return;
+			}
+		}
 
-		$onTextChanged.emit(characters);
+		if (currentLine <=  maxLines + 1) {
+			characters.add(currentCharPos, character);
+			currentCharPos++;
+			$onTextChanged.emit(characters);
+		}
 	}
 
 	private void deleteCharacter() {
@@ -480,8 +494,8 @@ public class TextArea extends MDGui {
 			}
 		}
 	}
-
 	private void jumpLine() {
+		if (currentLine-1 >= maxLines) return; // Allow jumping up to maxLines
 		characters.add(currentCharPos, '\n');
 		currentCharPos++;
 		$onTextChanged.emit(characters);

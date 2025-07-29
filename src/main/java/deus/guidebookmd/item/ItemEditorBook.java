@@ -1,5 +1,6 @@
 package deus.guidebookmd.item;
 
+import deus.guidebookmd.EditableBook;
 import deus.guidebookmd.IntroBook;
 import deus.guidebookmd.gui.MarkdownEditor;
 import net.minecraft.client.Minecraft;
@@ -15,7 +16,7 @@ public class ItemEditorBook extends Item {
 
 	@Override
 	public ItemStack onUseItem(ItemStack itemstack, World world, Player entityplayer) {
-		Minecraft.getMinecraft().displayScreen(new MarkdownEditor());
+		Minecraft.getMinecraft().displayScreen(new EditableBook());
 		return super.onUseItem(itemstack, world, entityplayer);
 	}
 }

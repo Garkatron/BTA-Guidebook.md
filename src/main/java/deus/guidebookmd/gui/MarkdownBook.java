@@ -6,6 +6,8 @@ public abstract class MarkdownBook extends MDScreen {
 	protected BookConfig config = new BookConfig(c -> {
 	});
 
+
+
 	public int xOffset;
 	public int yOffset;
 

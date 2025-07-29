@@ -4,6 +4,7 @@ import deus.guidebookmd.components.MDComponent;
 import deus.guidebookmd.config.BookConfig;
 import deus.guidebookmd.gui.elements.MDGui;
 import deus.guidebookmd.config.PageConfig;
+import deus.guidebookmd.gui.elements.PageButton;
 import deus.guidebookmd.gui.elements.PageTurnIndicator;
 import org.lwjgl.opengl.GL11;
 
@@ -15,6 +16,7 @@ import static deus.guidebookmd.utils.RenderUtils.applyScissor;
 public class MDPage extends MDGui {
 	public PageConfig config;
 
+	public int number = 0;
 	public boolean hasNextButton = true;
 	public boolean hasPreviousButton = true;
 	public MarkdownBook screen;
@@ -69,9 +71,9 @@ public class MDPage extends MDGui {
 		BookConfig bkConfig = screen.config;
 
 		// ? Page config
-		PageConfig pageConfig = config == null ? screen.config.defaultPageConfig : config;
+		PageConfig pageConfig = config == null ? bkConfig.defaultPageConfig : config;
 
-		mc.textureManager.loadTexture(pageConfig.pageTexture == null ? bkConfig.defaultPageTexture : pageConfig.pageTexture).bind();
+		mc.textureManager.loadTexture(pageConfig.pageTexture).bind();
 
 		// ? Get button texture
 		button0.texture = pageConfig.pageTexture;
@@ -79,6 +81,9 @@ public class MDPage extends MDGui {
 
 		// ? Draw background
 		drawTexturedModalRect(this.x + pageXTexturePos, this.y, 0, 0, pageConfig.pageTextureWidth, pageConfig.pageTextureHeight);
+
+		// ? Draw page number
+		drawString(mc.font, number + "", this.x + textXPos, this.y - 9, 0xffffff);
 
 		// ? Apply mask to avoid text overflow
 		if (!disableScissor) {

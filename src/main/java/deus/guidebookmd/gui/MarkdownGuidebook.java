@@ -11,12 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MarkdownGuidebook extends MarkdownBook {
+public class MarkdownGuidebook<E extends MDPage> extends MarkdownBook {
 
-	protected BookConfig config = new BookConfig(c->{});
 
 	protected int currentPageNumber = -1;
-	protected final List<MDPage> pages = new ArrayList<>();
+	protected final List<E> pages = new ArrayList<>();
 
 
 
@@ -37,6 +36,7 @@ public class MarkdownGuidebook extends MarkdownBook {
 
 	}
 
+
 	@Override
 	public void render(int mx, int my, float partialTick) {
 		if (currentPageNumber != -1) currentPage = getCurrentPage().mdComponents;
@@ -53,6 +53,8 @@ public class MarkdownGuidebook extends MarkdownBook {
 			drawTexturedModalRect(xOffset + config.backPageOffsets[0], yOffset + config.backPageOffsets[1], 0, 0, config.frontBackPageWH[0], config.frontBackPageWH[1]);
 
 			// ? Draw pages
+			if (pages.isEmpty()) return;
+
 			for (int i = 0; i < config.pageTexturePositions.length; i++) {
 				int pageIndex = currentPageNumber + i;
 				if (pageIndex < pages.size()) {
@@ -62,7 +64,7 @@ public class MarkdownGuidebook extends MarkdownBook {
 					int textY = config.textYPositions.length > i ? config.textYPositions[i] : 0;
 					int textureX = config.pageTexturePositions.length > i ? config.pageTexturePositions[i] : 0;
 
-					MDPage page = pages.get(pageIndex);
+					E page = pages.get(pageIndex);
 
 					// ? Avoid 2 buttons in each page
 					if (config.pairButtons && pageIndex % 2 == 0) {
@@ -76,6 +78,7 @@ public class MarkdownGuidebook extends MarkdownBook {
 					// ? Update mouse pos
 					page.updateMousePos(mx, my);
 					page.update();
+					page.number = pageIndex;
 					page.x = xOffset;
 					page.y = yOffset;
 
@@ -135,6 +138,7 @@ public class MarkdownGuidebook extends MarkdownBook {
 
 	@Override
 	public void mouseClicked(int mx, int my, int buttonNum) {
+		super.mouseClicked(mx, my, buttonNum);
 		if (currentPageNumber == -1) {
 			currentPageNumber = 0;
 		} else {
@@ -151,7 +155,7 @@ public class MarkdownGuidebook extends MarkdownBook {
 
 	// ? Util functions
 	public void loadMarkdownPage(String path) {
-		this.pages.add(MarkdownCompiler.compile(path, getClass()));
+		this.pages.add((E) MarkdownCompiler.compile(path, getClass()));
 	}
 
 	public void loadMarkdownPages(String... paths) {
@@ -160,16 +164,18 @@ public class MarkdownGuidebook extends MarkdownBook {
 		}
 	}
 
-	public MDPage getCurrentPage() {
+	public E getCurrentPage() {
+		if (currentPageNumber >= pages.size() || currentPageNumber < 0) {
+			return pages.isEmpty() ? null : pages.get(0);
+		}
 		return pages.get(currentPageNumber);
 	}
-
 	public void playPageSound() {
 		Random r = new Random();
 		this.mc.sndManager.playSound("random.page", SoundCategory.GUI_SOUNDS, 0.8F, 0.9F + (r.nextFloat() - r.nextFloat()) * 0.1F);
 	}
 
-	private void shareReferenceToComponents() {
+	protected void shareReferenceToComponents() {
 		for (MDPage page : pages) {
 			page.setScreen(this);
 			for (MDComponent mdComponent : page.mdComponents) {
@@ -177,5 +183,6 @@ public class MarkdownGuidebook extends MarkdownBook {
 			}
 		}
 	}
+
 
 }

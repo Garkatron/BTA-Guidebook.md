@@ -6,7 +6,7 @@ import net.minecraft.client.gui.Screen;
 import java.util.ArrayList;
 import java.util.List;
 
-import static deus.guidebookmd.gui.MDPage.drawPage;
+import static deus.guidebookmd.gui.MDPage.renderMarkdownComponents;
 
 public class MDScreen extends Screen {
 	protected List<MDComponent> currentPage = new ArrayList<>();
@@ -20,6 +20,6 @@ public class MDScreen extends Screen {
 	@Override
 	public void render(int mx, int my, float partialTick) {
 		super.render(mx, my, partialTick);
-		drawPage(currentPage, startY, xOffset, mx, my, width, yOffset, centered, centeredMaxWidth);
+		renderMarkdownComponents(currentPage, startY, xOffset, mx, my, width, yOffset, centered, centeredMaxWidth);
 	}
 }

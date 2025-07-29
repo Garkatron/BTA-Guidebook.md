@@ -14,11 +14,11 @@ import static deus.guidebookmd.utils.RenderUtils.applyScissor;
 
 public class MDPage extends MDGui {
 	public PageConfig config;
-	public int x = 0;
-	public int y = 0;
+
 	public boolean hasNextButton = true;
 	public boolean hasPreviousButton = true;
-	public MDBookScreen screen;
+	public MarkdownBook screen;
+	public boolean disableScissor = false;
 	List<MDComponent> mdComponents;
 	private final PageTurnIndicator button0 = new PageTurnIndicator(0, this);
 	private final PageTurnIndicator button1 = new PageTurnIndicator(1, this);
@@ -28,7 +28,8 @@ public class MDPage extends MDGui {
 		this.mdComponents = mdComponents;
 	}
 
-	public static void drawPage(List<MDComponent> page, int x, int y, int mouseX, int mouseY, int width, int yOffset, boolean centered, boolean centeredMaxWidth) {
+
+	public static void renderMarkdownComponents(List<MDComponent> page, int x, int y, int mouseX, int mouseY, int width, int yOffset, boolean centered, boolean centeredMaxWidth) {
 		if (page == null || page.isEmpty()) {
 			return;
 		}
@@ -59,7 +60,7 @@ public class MDPage extends MDGui {
 		}
 	}
 
-	public void setScreen(MDBookScreen screen) {
+	public void setScreen(MarkdownBook screen) {
 		this.screen = screen;
 	}
 
@@ -72,8 +73,6 @@ public class MDPage extends MDGui {
 
 		mc.textureManager.loadTexture(pageConfig.pageTexture == null ? bkConfig.defaultPageTexture : pageConfig.pageTexture).bind();
 
-
-
 		// ? Get button texture
 		button0.texture = pageConfig.pageTexture;
 		button1.texture = pageConfig.pageTexture;
@@ -82,13 +81,17 @@ public class MDPage extends MDGui {
 		drawTexturedModalRect(this.x + pageXTexturePos, this.y, 0, 0, pageConfig.pageTextureWidth, pageConfig.pageTextureHeight);
 
 		// ? Apply mask to avoid text overflow
-		GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		applyScissor(mc, this.x + textXPos, this.y, pageConfig.scissorWH[0], pageConfig.scissorWH[1], screen.width, screen.height);
+		if (!disableScissor) {
+			GL11.glEnable(GL11.GL_SCISSOR_TEST);
+			applyScissor(mc, this.x + textXPos, this.y, pageConfig.scissorWH[0], pageConfig.scissorWH[1], screen.width, screen.height);
+		}
 
 		// ? Draw markdown text
-		drawPage(mdComponents, this.x + textXPos, textYPos, mx, my, screen.width, screen.yOffset, pageConfig.centered, screen.centeredMaxWidth);
+		drawMarkdown(this.x + textXPos, textYPos, pageConfig.centered, screen.centeredMaxWidth);
 
-		GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		if (!disableScissor) {
+			GL11.glDisable(GL11.GL_SCISSOR_TEST);
+		}
 
 		// ? Avoid draw 2 buttons
 		if (hasNextButton) {
@@ -103,7 +106,10 @@ public class MDPage extends MDGui {
 
 			button1.render();
 		}
+	}
 
+	protected void drawMarkdown(int textXPos, int textYPos, boolean centered, boolean centeredMaxWidth) {
+		renderMarkdownComponents(mdComponents, textXPos, textYPos, mx, my, screen.width, screen.yOffset, centered, centeredMaxWidth);
 	}
 
 	@Override

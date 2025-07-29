@@ -34,6 +34,7 @@ public class TextArea extends MDGui {
 
 	// ? Drawing
 	public boolean drawBackground = true;
+	public boolean drawBorder = true;
 	public boolean drawLineCharCount = true;
 	public boolean drawLineCount = true;
 	public boolean drawExtraCursors = true;
@@ -47,8 +48,11 @@ public class TextArea extends MDGui {
 	public boolean drawCursor = true;
 	public boolean animateCursor = true;
 
-	String cursorCharacter = "|";
+	String cursorCharacter = "_";
+	String charCursorCharacter = ".";
+	String lineCursorCharacter = "|";
 
+	public boolean autoWrap = true;
 	public int maxTextLength = 20;
 	protected int textOffsetX = 12;
 	public int minTextOffsetx = 12;
@@ -154,11 +158,30 @@ public class TextArea extends MDGui {
 	// ? Drawing functions
 	protected void drawBackground() {
 		int backgroundColor = focused ? focusBackgroundColor : this.backgroundColor;
-		int borderColor = focused ? focusBorderColor : this.borderColor;
-
-		this.drawRect(this.x - 1, this.y - 1, this.x + width + 1 + textOffsetX, this.y + height + 1, borderColor);
 		this.drawRect(this.x, this.y, this.x + width + textOffsetX, this.y + height, backgroundColor);
 	}
+
+	protected void drawBorder() {
+		int borderColor = focused ? focusBorderColor : this.borderColor;
+
+		int left = this.x;
+		int right = this.x + width + textOffsetX;
+		int top = this.y;
+		int bottom = this.y + height;
+
+		// Top border
+		this.drawRect(left, top - 1, right, top, borderColor);
+
+		// Bottom border
+		this.drawRect(left, bottom, right, bottom + 1, borderColor);
+
+		// Left border
+		this.drawRect(left - 1, top, left, bottom, borderColor);
+
+		// Right border
+		this.drawRect(right, top, right + 1, bottom, borderColor);
+	}
+
 
 	protected void drawText() {
 		int textColor = focused ? focusTextColor : this.textColor;
@@ -234,8 +257,8 @@ public class TextArea extends MDGui {
 	}
 
 	protected void drawAlternativeCursors() {
-		this.drawString(this.mc.font, "|", this.x + width-1+textOffsetX, this.y + cursorY, 0xff0000);
-		this.drawString(this.mc.font, cursorCharacter, this.x + cursorX, this.y-7, 0xff0000);
+		this.drawString(this.mc.font, lineCursorCharacter, this.x + width-1+textOffsetX, this.y + cursorY, 0xff0000);
+		this.drawString(this.mc.font, charCursorCharacter, this.x + cursorX, this.y-7, 0xff0000);
 	}
 
 	protected void drawLineCharCount() {
@@ -249,6 +272,7 @@ public class TextArea extends MDGui {
 	@Override
 	public void render() {
 		if (drawBackground) drawBackground();
+		if (drawBorder) drawBorder();
 		if (drawLineCharCount) drawLineCharCount();
 		drawText();
 		if (drawCursor) drawCursor();
@@ -303,7 +327,9 @@ public class TextArea extends MDGui {
 
 	@Override
 	public void update() {
-		maxTextLength = (width/6)-1;
+		if (autoWrap) {
+			maxTextLength = (width/6)-1;
+		}
 
 		isCtrl = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL);
 		isShift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);

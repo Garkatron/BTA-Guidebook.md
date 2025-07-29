@@ -1,9 +1,9 @@
 package deus.guidebookmd;
 
-import deus.guidebookmd.gui.MDBookScreen;
+import deus.guidebookmd.gui.MarkdownGuidebook;
 import deus.guidebookmd.config.BookConfig;
 
-public class IntroBook extends MDBookScreen {
+public class IntroBook extends MarkdownGuidebook {
 
 	public IntroBook() {
 		String path = "/assets/guidebookmd/markdown/mdbook/";

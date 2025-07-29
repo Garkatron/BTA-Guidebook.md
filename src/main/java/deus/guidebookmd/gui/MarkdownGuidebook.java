@@ -11,19 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MDBookScreen extends MDScreen {
+public class MarkdownGuidebook extends MarkdownBook {
 
 	protected BookConfig config = new BookConfig(c->{});
 
 	protected int currentPageNumber = -1;
 	protected final List<MDPage> pages = new ArrayList<>();
 
-	public int xOffset;
-	public int yOffset;
+
 
 	// ? Load markdown
-	public MDBookScreen() {
-
+	public MarkdownGuidebook() {
 
 	}
 
@@ -77,6 +75,7 @@ public class MDBookScreen extends MDScreen {
 
 					// ? Update mouse pos
 					page.updateMousePos(mx, my);
+					page.update();
 					page.x = xOffset;
 					page.y = yOffset;
 
@@ -89,13 +88,11 @@ public class MDBookScreen extends MDScreen {
 		GL11.glPopMatrix();
 	}
 
-
 	// ? Logic functions
 	public void goBack() {
 		currentPageNumber -= config.pageSkipAmount;
 		if (currentPageNumber < 0) currentPageNumber = -1;
 		playPageSound();
-
 	}
 
 	public void goNext() {

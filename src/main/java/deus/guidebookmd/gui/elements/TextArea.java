@@ -17,7 +17,11 @@ public class TextArea extends MDGui {
 	private boolean wasClickedOut = false;
 	private boolean focused = false;
 
-	public List<Character> characters = new ArrayList<>();
+	protected List<Character> characters = new ArrayList<>();
+	protected final List<List<Character>> undoStack = new ArrayList<>();
+	protected final List<List<Character>> redoStack = new ArrayList<>();
+	public int maxUndoHistory = 100;
+
 	protected int currentCharPos = 0;
 	protected int currentLine = 1;
 	protected int currentLineCharCount = 1;
@@ -29,10 +33,10 @@ public class TextArea extends MDGui {
 	protected int selectLastChar = 0;
 
 	// ? Drawing
-	protected boolean drawBackground = true;
-	protected boolean drawLineCharCount = true;
-	protected boolean drawLineCount = true;
-	protected boolean drawExtraCursors = true;
+	public boolean drawBackground = true;
+	public boolean drawLineCharCount = true;
+	public boolean drawLineCount = true;
+	public boolean drawExtraCursors = true;
 
 	protected int cursorX = 0;
 	protected int cursorY = 0;
@@ -40,32 +44,46 @@ public class TextArea extends MDGui {
 	// * Animation
 	int cursorBlinkInterval = 500;
 	private long lastCursorToggle = 0;
-	private boolean drawCursor = true;
+	public boolean drawCursor = true;
+	public boolean animateCursor = true;
 
-	String cursorCharacter = "_";
+	String cursorCharacter = "|";
 
-	protected int maxTextLength = 20;
+	public int maxTextLength = 20;
 	protected int textOffsetX = 12;
-	protected int minTextOffsetx = 12;
+	public int minTextOffsetx = 12;
 
 	// * Colors
-	int focusBackgroundColor = 0xFF000000;
-	int focusTextColor = 0xFFE9C46A;
-	int focusBorderColor = 0xFFE9C46A;
+	public int focusBackgroundColor = 0xFF000000;
+	public int focusTextColor = 0xFFE9C46A;
+	public int focusBorderColor = 0xFFE9C46A;
 
-	int defaultBackgroundColor = 0xFF000000;
-	int defaultTextColor = 0xFFFFFFFF;
-	int defaultBorderColor = 0xFFFFFFFF;
+	public int backgroundColor = 0xFF000000;
+	public int textColor = 0xFFFFFFFF;
+	public int borderColor = 0xFFFFFFFF;
+	public int cursorColor = 0xFFFFFFFF;
+	public int lineCountColor = 0xb2b3b3;
 
 	// ? Keys
 	protected boolean isCtrl = false;
 	protected boolean isShift = false;
 
 	// ? API
-	public final Signal<String> textChangedSignal = new Signal<>();
+	public final Signal<List<Character>> $onTextChanged = new Signal<>();
 
 	public TextArea() {
 		currentCharPos = characters.size();
+		$onTextChanged.connect(
+			(s, chars)->{
+				if (!undoStack.isEmpty() && undoStack.get(undoStack.size() - 1).equals(characters)) return;
+
+				undoStack.add(new ArrayList<>(characters));
+				if (undoStack.size() > maxUndoHistory) {
+					undoStack.remove(0);
+				}
+				redoStack.clear();
+			}
+		);
 	}
 
 	// ? Functions
@@ -73,6 +91,8 @@ public class TextArea extends MDGui {
 		if (!clipboard.isEmpty()) {
 			characters.addAll(currentCharPos, clipboard.get(clipboard.size()-1));
 			currentCharPos = characters.size();
+
+			$onTextChanged.emit(characters);
 		}
 	}
 
@@ -90,25 +110,58 @@ public class TextArea extends MDGui {
 		for (int i = 0; i < to - from; i++) {
 			characters.remove(from);
 		}
+
+		$onTextChanged.emit(characters);
+	}
+
+	protected void undo() {
+		if (!undoStack.isEmpty()) {
+			redoStack.add(new ArrayList<>(characters));
+			characters = undoStack.remove(undoStack.size() - 1);
+			currentCharPos = Math.min(currentCharPos, characters.size());
+		}
+
+	}
+
+	protected void redo() {
+		if (!redoStack.isEmpty()) {
+//			undoStack.add(new ArrayList<>(characters));
+//			int index = undoStack.size() - 1;
+//			if (index< redoStack.size()) {
+//				characters = redoStack.remove(index);
+//			}
+			// currentCharPos = Math.min(currentCharPos, characters.size());
+		}
+	}
+
+	protected void deleteSequence(int start, int end) {
+		int from = Math.min(start, end);
+		int to = Math.max(start, end);
+		for (int i = 0; i < to - from; i++) {
+			characters.remove(from);
+		}
+
+		$onTextChanged.emit(characters);
 	}
 
 	private void deleteWord() {
 		while (!isAtEnd() && !isSpace(peek()) && !wordDeleteIgnore(peek())) {
 			deleteCharacter();
 		}
+		$onTextChanged.emit(characters);
 	}
 
 	// ? Drawing functions
 	protected void drawBackground() {
-		int backgroundColor = focused ? focusBackgroundColor : defaultBackgroundColor;
-		int borderColor = focused ? focusBorderColor : defaultBorderColor;
+		int backgroundColor = focused ? focusBackgroundColor : this.backgroundColor;
+		int borderColor = focused ? focusBorderColor : this.borderColor;
 
 		this.drawRect(this.x - 1, this.y - 1, this.x + width + 1 + textOffsetX, this.y + height + 1, borderColor);
 		this.drawRect(this.x, this.y, this.x + width + textOffsetX, this.y + height, backgroundColor);
 	}
 
 	protected void drawText() {
-		int textColor = focused ? focusTextColor : defaultTextColor;
+		int textColor = focused ? focusTextColor : this.textColor;
 		int lineHeight = this.mc.font.fontHeight;
 		int textStartY = this.y + 4;
 
@@ -125,12 +178,12 @@ public class TextArea extends MDGui {
 		cursorY = 4;
 
 		for (int i = 0; i < characters.size(); i++) {
-			char c = characters.get(i);
-
 			if (tempCharPos == currentCharPos) {
-				cursorX = 4 + pixelX;
+				cursorX = textOffsetX + pixelX;
 				cursorY = 4 + (cursorLine * lineHeight);
 			}
+
+			char c = characters.get(i);
 
 			if (c == '\n' || lineCharCount >= maxTextLength) {
 				this.drawString(this.mc.font, lineBuffer.toString(), this.x + textOffsetX, drawY, textColor);
@@ -149,23 +202,25 @@ public class TextArea extends MDGui {
 				lineBuffer.append(c);
 				pixelX += this.mc.font.getCharWidth(c);
 				lineCharCount++;
-
 			}
+
 			tempCharPos++;
 		}
 
-		if (tempCharPos == currentCharPos) {
+
+		if (currentCharPos == characters.size()) {
 			cursorX = textOffsetX + pixelX;
 			cursorY = 4 + (cursorLine * lineHeight);
 		}
+
 
 		currentLineCharCount = lineCharCount;
 		currentLine = cursorLine;
 
 
 		if (drawLineCount) {
-			for (int i = 0; i < cursorLine; i++) {
-				this.drawString(this.mc.font, i+"", this.x, this.y + 4 + (i * mc.font.fontHeight), 0x252525);
+			for (int i = 0; i < cursorLine + 1; i++) {
+				this.drawString(this.mc.font, i+"", this.x, this.y + 4 + (i * mc.font.fontHeight), lineCountColor);
 			}
 		}
 
@@ -175,7 +230,7 @@ public class TextArea extends MDGui {
 	}
 
 	protected void drawCursor() {
-		this.drawString(this.mc.font, cursorCharacter, this.x + cursorX, this.y + cursorY, 0xff0000);
+		this.drawString(this.mc.font, cursorCharacter, this.x + cursorX, this.y + cursorY, cursorColor);
 	}
 
 	protected void drawAlternativeCursors() {
@@ -184,11 +239,11 @@ public class TextArea extends MDGui {
 	}
 
 	protected void drawLineCharCount() {
-		String line = currentLine + "-";
+		// String line = currentLine + "-";
 		String lineCharCount = String.valueOf(currentLineCharCount);
 
-		this.drawString(this.mc.font, line, this.x, this.y + cursorY + mc.font.fontHeight*2, 0xb2b3b3);
-		this.drawString(this.mc.font, lineCharCount, this.x + mc.font.getStringWidth(line), this.y + cursorY + mc.font.fontHeight*2, 0xb2b3b3);
+		// this.drawString(this.mc.font, line, this.x, this.y + cursorY - mc.font.fontHeight*2, 0xb2b3b3);
+		this.drawString(this.mc.font, lineCharCount, this.x + cursorX, this.y + cursorY + mc.font.fontHeight, lineCountColor);
 	}
 
 	@Override
@@ -257,10 +312,12 @@ public class TextArea extends MDGui {
 
 		if (!focused) return;
 
-		long currentTime = System.currentTimeMillis();
-		if (currentTime - lastCursorToggle > cursorBlinkInterval) {
-			drawCursor = !drawCursor;
-			lastCursorToggle = currentTime;
+		if (animateCursor) {
+			long currentTime = System.currentTimeMillis();
+			if (currentTime - lastCursorToggle > cursorBlinkInterval) {
+				drawCursor = !drawCursor;
+				lastCursorToggle = currentTime;
+			}
 		}
 
 		if (Keyboard.isKeyDown(Keyboard.KEY_LCONTROL) && Keyboard.isKeyDown(Keyboard.KEY_BACK)) {
@@ -303,18 +360,27 @@ public class TextArea extends MDGui {
 					return;
 				}
 
+
 				if (key == Keyboard.KEY_C && isCtrl) {
 					if (selectStartChar != selectLastChar) {
-						int from = Math.min(selectStartChar, selectLastChar);
-						int to = Math.max(selectStartChar, selectLastChar);
-						copy(from, to);
+						copy(selectStartChar, selectLastChar);
 					}
 					return;
-				} else if (isCtrl && Keyboard.isKeyDown(Keyboard.KEY_V)) {
+				}
+				else if (isCtrl && Keyboard.isKeyDown(Keyboard.KEY_V)) {
 					paste();
 					isSelecting = false;
 
-				} else if (key == Keyboard.KEY_BACK) {
+				} else if (isCtrl && Keyboard.isKeyDown(Keyboard.KEY_Z)) {
+					undo();
+				} else if (isCtrl && Keyboard.isKeyDown(Keyboard.KEY_Y)) {
+					redo();
+
+				} else if (isShift && key == Keyboard.KEY_BACK) {
+					deleteSequence(selectStartChar, selectLastChar);
+					return;
+				}
+				else if (key == Keyboard.KEY_BACK) {
 					deleteCharacter();
 
 				} else if (key == Keyboard.KEY_ESCAPE) {
@@ -324,14 +390,19 @@ public class TextArea extends MDGui {
 					jumpLine();
 
 				} else if (key == Keyboard.KEY_LEFT) {
-				if (currentCharPos > 0) {
-					currentCharPos--;
-				}
+					if (currentCharPos > 0) {
+						currentCharPos--;
+					}
 
 				} else if (key == Keyboard.KEY_RIGHT) {
 					if (currentCharPos < characters.size()) {
 						currentCharPos++;
 					}
+				} else if (key == Keyboard.KEY_END) {
+					currentCharPos = currentLineCharCount;
+				} else if (key == Keyboard.KEY_HOME) {
+					currentCharPos -= currentLineCharCount;
+
 				}  else if (Character.isDefined(character) && !Character.isISOControl(character)) {
 					addCharacter(character);
 				}
@@ -369,6 +440,8 @@ public class TextArea extends MDGui {
 	private void addCharacter(char character) {
 		characters.add(character);
 		currentCharPos++;
+
+		$onTextChanged.emit(characters);
 	}
 
 	private void deleteCharacter() {
@@ -376,12 +449,16 @@ public class TextArea extends MDGui {
 			if (currentCharPos > 0) {
 				characters.remove(currentCharPos-1);
 				currentCharPos--;
+
+				$onTextChanged.emit(characters);
 			}
 		}
 	}
 
 	private void jumpLine() {
-		addCharacter('\n');
+		characters.add(currentCharPos, '\n');
+		currentCharPos++;
+		$onTextChanged.emit(characters);
 	}
 
 	public List<String> getLines() {

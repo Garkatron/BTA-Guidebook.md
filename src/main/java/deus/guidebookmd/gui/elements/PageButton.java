@@ -25,7 +25,6 @@ public class PageButton extends MDGui {
 		this.mc.textureManager.bindTexture(this.mc.textureManager.loadTexture(texture));
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		drawTexturedIcon(this.x, this.y, this.size,this.size, TextureRegistry.getTexture(texture));
-
 	}
 
 
@@ -38,6 +37,7 @@ public class PageButton extends MDGui {
 		int top = y;
 
 		if (mx >= left && mx <= left + size && my >= top && my <= top + size) {
+
 			onClick.run();
 		}
 	}

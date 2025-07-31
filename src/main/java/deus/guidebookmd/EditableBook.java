@@ -23,7 +23,9 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 	private boolean editable = true;
 
 	// ? Components
-	private final PageButton exportBookButton = new PageButton("");
+	private final PageButton exportBookButton = new PageButton("guidebookmd:gui/hud/export");
+	private final PageButton addPageButton = new PageButton("guidebookmd:gui/hud/add");
+	private final PageButton cloneButton = new PageButton("guidebookmd:gui/hud/clone");
 	private final TextArea titleTextArea = new TextArea();
 
 	// ? Stuff
@@ -62,6 +64,13 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 		titleTextArea.setContent(title.chars()
 			.mapToObj(ch -> (char) ch)
 			.collect(Collectors.toList()));
+
+		exportBookButton.onClick = this::exportBook;
+		cloneButton.onClick = this::cloneBook;
+		addPageButton.onClick = this::addPage;
+
+		exportBookButton.disabled = cloneButton.disabled = addPageButton.disabled = !this.editable;
+
 	}
 
 	public EditableBook(Player player, ItemStack itemStack) {
@@ -190,15 +199,9 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 			for (ButtonElement buttonElement : this.buttons) {
 				buttonElement.drawButton(this.mc, mx, my);
 			}
+			drawButtons(mx, my);
 		} else {
-
-			titleTextArea.x = (width-titleTextArea.width)/2;
-			titleTextArea.y = (height/2)-85;
-			if (editable) {
-				titleTextArea.updateMousePos(mx, my);
-				titleTextArea.update();
-			}
-			titleTextArea.render();
+			drawTextarea(mx, my);
 		}
 	}
 
@@ -207,6 +210,9 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 		if (!titleTextArea.isHovered()) {
 			super.mouseClicked(mx, my, buttonNum);
 		}
+		cloneButton.mouseClick(mx, my);
+		addPageButton.mouseClick(mx, my);
+		exportBookButton.mouseClick(mx, my);
 	}
 
 	public MDEditablePage addPage() {
@@ -231,6 +237,41 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 			this.mc.displayScreen((Screen) null);
 		}
 	}
+	public void drawTextarea(int mx, int my) {
+		titleTextArea.x = (width-titleTextArea.width)/2;
+		titleTextArea.y = (height/2)-85;
+		if (editable) {
+			titleTextArea.updateMousePos(mx, my);
+			titleTextArea.update();
+		}
+		titleTextArea.render();
+	}
+
+	public void drawButtons(int mx, int my) {
+		int startY = (height/2)-85;
+		int buttonX = (width/2)+170;
+		int base = 16;
+
+		addPageButton.x = buttonX;
+		cloneButton.x = buttonX;
+		exportBookButton.x = buttonX;
+
+		addPageButton.y = startY + base;
+		cloneButton.y = startY + base*2;
+		exportBookButton.y = startY + base*3;
+
+		cloneButton.updateMousePos(mx, my);
+		cloneButton.update();
+		cloneButton.render();
+
+		addPageButton.updateMousePos(mx, my);
+		addPageButton.update();
+		addPageButton.render();
+
+		exportBookButton.updateMousePos(mx, my);
+		exportBookButton.update();
+		exportBookButton.render();
+	}
 
 	// ? Utils
 	public List<List<Character>> getAllPagesContent() {
@@ -243,5 +284,17 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 
 	public void dropReadOnlybook() {
 		player.world.dropItem((int) player.x, (int) player.y, (int) player.z, exportItemStackBook(player, itemStack, false));
+		this.mc.displayScreen((Screen) null);
+	}
+
+	// ? Buttons
+	public void cloneBook() {
+		player.world.dropItem((int) player.x, (int) player.y, (int) player.z, exportItemStackBook(player, itemStack, true));
+		this.mc.displayScreen((Screen) null);
+	}
+
+	public void exportBook() {
+		player.world.dropItem((int) player.x, (int) player.y, (int) player.z, exportItemStackBook(player, itemStack, false));
+		this.mc.displayScreen((Screen) null);
 	}
 }

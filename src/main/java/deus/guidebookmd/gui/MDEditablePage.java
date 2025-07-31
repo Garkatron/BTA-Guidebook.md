@@ -19,13 +19,11 @@ public class MDEditablePage extends MDPage {
 	public TextArea textArea = new TextArea();
 	private PageButton deleteButton = null;
 	private PageButton lockButton = null;
-	private PageButton addButton = null;
 	private PageButton moveLeftButton = null;
 	private PageButton moveRightButton = null;
 
 	// ? Others
 	private final PageButton[] buttons = {
-		addButton = new PageButton("guidebookmd:gui/hud/add"),
 		lockButton = new PageButton("guidebookmd:gui/hud/lock"),
 		deleteButton = new PageButton( "guidebookmd:gui/hud/delete"),
 		moveLeftButton = new PageButton("guidebookmd:gui/hud/moveleft"),
@@ -41,7 +39,6 @@ public class MDEditablePage extends MDPage {
 		moveRightButton.onClick = this::moveRight;
 		deleteButton.onClick = this::delete;
 		lockButton.onClick = this::lock;
-		addButton.onClick = this::add;
 
 		// ? Config textarea
 		textArea.drawBackground = false;
@@ -62,7 +59,6 @@ public class MDEditablePage extends MDPage {
 			this.editable = false;
 			this.lockButton.disabled = true;
 			this.deleteButton.disabled = true;
-			this.addButton.disabled = true;
 			this.moveLeftButton.disabled = true;
 			this.moveRightButton.disabled = true;
 		}
@@ -88,13 +84,12 @@ public class MDEditablePage extends MDPage {
 		int startX = this.x + textXPos + pageConfig.pageTextureWidth - 128;
 		int base = 16;
 
-		addButton.x = startX;
-		lockButton.x = startX + base;
-		deleteButton.x = startX + base * 2;
-		moveLeftButton.x = startX + base * 3;
-		moveRightButton.x = startX + base * 4;
+		lockButton.x = startX;
+		deleteButton.x = startX + base;
+		moveLeftButton.x = startX + base * 2;
+		moveRightButton.x = startX + base * 3;
 
-		addButton.y = lockButton.y = deleteButton.y = moveRightButton.y = moveLeftButton.y = buttonY;
+		lockButton.y = deleteButton.y = moveRightButton.y = moveLeftButton.y = buttonY;
 
 		for (PageButton button : buttons) {
 

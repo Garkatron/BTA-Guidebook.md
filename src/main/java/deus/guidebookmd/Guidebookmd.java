@@ -1,6 +1,5 @@
 package deus.guidebookmd;
 
-import deus.guidebookmd.block.MDBlocks;
 import deus.guidebookmd.item.Items;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -34,7 +33,6 @@ public class Guidebookmd implements ModInitializer, RecipeEntrypoint, GameStartE
 	@Override
 	public void onInitialize() {
 		Items.initialize();
-		MDBlocks.initialize();
 		CommandManager.registerCommand(new GuideBookCommand());
 		LOGGER.info("Guidebook.md initialized.");
 	}

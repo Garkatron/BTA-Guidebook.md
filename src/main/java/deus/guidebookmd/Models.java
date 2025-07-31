@@ -1,6 +1,5 @@
 package deus.guidebookmd;
 
-import deus.guidebookmd.block.MDBlocks;
 import deus.guidebookmd.item.Items;
 import net.minecraft.client.render.EntityRenderDispatcher;
 import net.minecraft.client.render.TileEntityRenderDispatcher;
@@ -17,12 +16,7 @@ import turniplabs.halplibe.util.ModelEntrypoint;
 public class Models implements ModelEntrypoint {
 	@Override
 	public void initBlockModels(BlockModelDispatcher blockModelDispatcher) {
-		ModelHelper.setBlockModel(MDBlocks.BLOCK_PRINTER, () -> new BlockModelStandard<>(MDBlocks.BLOCK_PRINTER)
-			.setAllTextures(0, "guidebookmd:block/printer/sides")
-			.setTex(0, "guidebookmd:block/printer/top", Side.TOP)
-			.setTex(0, "guidebookmd:block/printer/back_0", Side.NORTH)
-			.setTex(0, "guidebookmd:block/printer/front", Side.SOUTH)
-		);
+
 	}
 
 	@Override

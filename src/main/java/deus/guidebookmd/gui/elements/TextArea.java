@@ -510,6 +510,10 @@ public class TextArea extends MDGui {
 	}
 
 	public List<String> getLines() {
+		return getLines(characters, maxTextLength);
+	}
+
+	public static List<String> getLines(List<Character> characters, int maxTextLength) {
 		List<String> lines = new ArrayList<>();
 		StringBuilder lineBuffer = new StringBuilder();
 		int lineCharCount = 0;
@@ -545,6 +549,16 @@ public class TextArea extends MDGui {
 		}
 		return sb.toString();
 	}
+
+
+	public static String fuseStrings(List<String> strings) {
+		StringBuilder sb = new StringBuilder();
+		for (String character : strings) {
+			sb.append(character);
+		}
+		return sb.toString();
+	}
+
 
 	// ? API
 	public void whilePressed() {

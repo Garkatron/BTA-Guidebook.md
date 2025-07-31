@@ -13,8 +13,15 @@ import net.minecraft.core.entity.player.Player;
 import net.minecraft.core.item.ItemStack;
 import org.lwjgl.input.Keyboard;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
@@ -140,7 +147,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 	}
 
 	// ? Loading methods
-	public List<List<Character>> loadFromStack(ItemStack stack) {
+	public static List<List<Character>> loadFromStack(ItemStack stack) {
 		List<List<Character>> result = new ArrayList<>();
 		CompoundTag data = stack.getData();
 
@@ -297,5 +304,76 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 		}
 		this.mc.displayScreen((Screen) null);
 	}
+
+	public static void exportMarkdownFolder(Player player, ItemStack stack, String ttitle) {
+		Objects.requireNonNull(player, "Player cannot be null");
+		Objects.requireNonNull(stack, "ItemStack cannot be null");
+		Objects.requireNonNull(ttitle, "Title cannot be null");
+
+		String title = ttitle.trim();
+		if (title.isEmpty()) {
+			title = "unnamed_book";
+		}
+		title = title.replaceAll("[<>:\"/\\\\|?*]", "_");
+
+		String directoryPath = Guidebookmd.BOOKS_DIRECTORY + title + "/exported/";
+		Path dir = Paths.get(directoryPath);
+
+		try {
+			Files.createDirectories(dir);
+
+			// Load content
+			List<List<Character>> content = loadFromStack(stack);
+			if (content == null || content.isEmpty()) {
+				Guidebookmd.LOGGER.warn("No pages found in ItemStack for book: {}", title);
+				player.sendMessage("No pages to export");
+				return;
+			}
+
+			// Convert content to pages with proper line breaks
+			List<String> pages = content.stream()
+				.map(characters -> {
+					if (characters == null || characters.isEmpty()) {
+						return "";
+					}
+
+					Object linesResult = TextArea.getLines(characters, 22);
+					if (linesResult instanceof List) {
+
+						return ((List<String>) linesResult).stream()
+							.collect(Collectors.joining("\n"));
+					} else {
+						return linesResult.toString();
+					}
+				})
+				.collect(Collectors.toList());
+
+			if (pages.isEmpty()) {
+				Guidebookmd.LOGGER.error("No pages to export for book: {}", title);
+				return;
+			}
+
+			DecimalFormat formatter = new DecimalFormat("000");
+
+			for (int i = 0; i < pages.size(); i++) {
+
+				String fileName = "page_" + formatter.format(i + 1) + ".md";
+				Path filePath = dir.resolve(fileName);
+
+				try (FileWriter fileWriter = new FileWriter(filePath.toFile())) {
+					fileWriter.write(pages.get(i));
+				} catch (IOException e) {
+					Guidebookmd.LOGGER.error("Failed to write page {}: {}", fileName, e.getMessage());
+				}
+			}
+
+			player.sendMessage("Successfully exported " + pages.size() + " pages to " + directoryPath);
+			Guidebookmd.LOGGER.info("Successfully exported {} pages to {}", pages.size(), directoryPath);
+
+		} catch (IOException e) {
+			Guidebookmd.LOGGER.error("Failed to create directory or export pages for book {}: {}", title, e.getMessage());
+		}
+	}
+
 
 }

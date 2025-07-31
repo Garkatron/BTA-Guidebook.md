@@ -6,9 +6,10 @@ import deus.guidebookmd.gui.MDPage;
 import deus.guidebookmd.config.PageConfig;
 import deus.guidebookmd.utils.Tuple;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.*;
 import java.util.stream.Collectors;
@@ -176,6 +177,8 @@ public class MarkdownCompiler {
 			throw new RuntimeException("Error reading Markdown file: " + path, e);
 		}
 	}
+
+
 
 	public static MDPage compile(String path, Class<?> c) {
 		return compile(path, c, -1);

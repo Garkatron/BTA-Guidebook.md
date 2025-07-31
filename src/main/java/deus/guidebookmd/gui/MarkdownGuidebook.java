@@ -2,6 +2,7 @@ package deus.guidebookmd.gui;
 
 import deus.guidebookmd.formats.MarkdownCompiler;
 import deus.guidebookmd.components.MDComponent;
+import deus.guidebookmd.utils.RLoading;
 import net.minecraft.client.gui.ButtonElement;
 import net.minecraft.core.sound.SoundCategory;
 import org.lwjgl.opengl.GL11;
@@ -152,7 +153,9 @@ public class MarkdownGuidebook<E extends MDPage> extends MarkdownBook {
 		this.pages.add((E) MarkdownCompiler.compile(path, getClass()));
 	}
 
+
 	public void loadMarkdownPages(String... paths) {
+		pages.clear();
 		for (String path : paths) {
 			loadMarkdownPage(path);
 		}

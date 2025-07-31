@@ -3,7 +3,9 @@ package deus.guidebookmd;
 import deus.guidebookmd.block.MDBlocks;
 import deus.guidebookmd.item.Items;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.render.texture.stitcher.TextureRegistry;
+import net.minecraft.core.net.command.CommandManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import turniplabs.halplibe.util.GameStartEntrypoint;
@@ -18,8 +20,9 @@ import java.net.URISyntaxException;
 public class Guidebookmd implements ModInitializer, RecipeEntrypoint, GameStartEntrypoint {
 	public static final String MOD_ID = "guidebookmd";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	public static TomlConfigHandler CFG;
+	public static final String BOOKS_DIRECTORY = FabricLoader.getInstance().getGameDir().toString() + "/guidebookmd/";
 	private static final Toml TOML = new Toml("Nothing to see here");
+	public static TomlConfigHandler CFG;
 
 	static {
 		TOML.addCategory("IDs")
@@ -32,17 +35,18 @@ public class Guidebookmd implements ModInitializer, RecipeEntrypoint, GameStartE
 	public void onInitialize() {
 		Items.initialize();
 		MDBlocks.initialize();
+		CommandManager.registerCommand(new GuideBookCommand());
 		LOGGER.info("Guidebook.md initialized.");
 	}
 
 	@Override
 	public void onRecipesReady() {
-
+		RecipeInitializer.InitRecipes();
 	}
 
 	@Override
 	public void initNamespaces() {
-
+		RecipeInitializer.InitNameSpaces();
 	}
 
 	@Override

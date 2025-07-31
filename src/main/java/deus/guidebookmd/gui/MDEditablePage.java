@@ -25,11 +25,11 @@ public class MDEditablePage extends MDPage {
 
 	// ? Others
 	private final PageButton[] buttons = {
-		addButton = new PageButton(this, "guidebookmd:gui/hud/add"),
-		lockButton = new PageButton(this, "guidebookmd:gui/hud/lock"),
-		deleteButton = new PageButton(this, "guidebookmd:gui/hud/delete"),
-		moveLeftButton = new PageButton(this, "guidebookmd:gui/hud/moveleft"),
-		moveRightButton = new PageButton(this, "guidebookmd:gui/hud/moveright"),
+		addButton = new PageButton("guidebookmd:gui/hud/add"),
+		lockButton = new PageButton("guidebookmd:gui/hud/lock"),
+		deleteButton = new PageButton( "guidebookmd:gui/hud/delete"),
+		moveLeftButton = new PageButton("guidebookmd:gui/hud/moveleft"),
+		moveRightButton = new PageButton("guidebookmd:gui/hud/moveright"),
 	};
 
 	// ? Constructor
@@ -78,7 +78,6 @@ public class MDEditablePage extends MDPage {
 		PageConfig pageConfig = config == null ? screen.config.defaultPageConfig : config;
 		textArea.width = pageConfig.pageTextureWidth - 25;
 		textArea.height = pageConfig.pageTextureHeight - 10;
-
 
 		if (canEdit) {
 			mdComponents = MarkdownCompiler.compile(textArea.getLines()).mdComponents;

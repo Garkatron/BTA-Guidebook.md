@@ -4,6 +4,8 @@ import com.mojang.nbt.tags.CompoundTag;
 import deus.guidebookmd.config.BookConfig;
 import deus.guidebookmd.gui.MDEditablePage;
 import deus.guidebookmd.gui.MarkdownGuidebook;
+import deus.guidebookmd.gui.elements.PageButton;
+import deus.guidebookmd.gui.elements.TextArea;
 import deus.guidebookmd.item.Items;
 import net.minecraft.client.gui.ButtonElement;
 import net.minecraft.client.gui.Screen;
@@ -13,11 +15,16 @@ import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 
 	// ? State
 	private boolean editable = true;
+
+	// ? Components
+	private final PageButton exportBookButton = new PageButton("");
+	private final TextArea titleTextArea = new TextArea();
 
 	// ? Stuff
 	private final ItemStack itemStack;
@@ -28,7 +35,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 		this.itemStack = itemStack;
 		this.player = player;
 
-		String path = "/assets/guidebookmd/markdown/mdbook/";
+		String path = "/assets/guidebookmd/markdown/editablebook/";
 		this.editable = editable;
 
 		config = BookConfig.fromJsonResource(getClass(), path + "config.json");
@@ -40,6 +47,21 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 		} else {
 			addPage();
 		}
+
+		String title = itemStack.getData().getString("title");
+		titleTextArea.drawBackground = false;
+		titleTextArea.maxTextLength = 15;
+		titleTextArea.drawBorder = this.editable;
+		titleTextArea.drawCursor = this.editable;
+		titleTextArea.drawExtraCursors = false;
+		titleTextArea.drawLineCount = false;
+		titleTextArea.drawLineCharCount = false;
+		titleTextArea.maxLines = 17;
+		titleTextArea.height = 170;
+		titleTextArea.width = 80;
+		titleTextArea.setContent(title.chars()
+			.mapToObj(ch -> (char) ch)
+			.collect(Collectors.toList()));
 	}
 
 	public EditableBook(Player player, ItemStack itemStack) {
@@ -62,6 +84,8 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 			editors.add(editor.nickname);
 		}
 
+		String title = titleTextArea.getContentAsString();
+		data.putString("title", title.isEmpty() ? "": title);
 		data.putString("editors", String.join(",", editors));
 		stack.setData(data);
 	}
@@ -147,7 +171,6 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 		return result;
 	}
 
-
 	public void loadFromLLC(List<List<Character>> content) {
 		pages.clear();
 		for (List<Character> characters : content) {
@@ -167,6 +190,22 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 			for (ButtonElement buttonElement : this.buttons) {
 				buttonElement.drawButton(this.mc, mx, my);
 			}
+		} else {
+
+			titleTextArea.x = (width-titleTextArea.width)/2;
+			titleTextArea.y = (height/2)-85;
+			if (editable) {
+				titleTextArea.updateMousePos(mx, my);
+				titleTextArea.update();
+			}
+			titleTextArea.render();
+		}
+	}
+
+	@Override
+	public void mouseClicked(int mx, int my, int buttonNum) {
+		if (!titleTextArea.isHovered()) {
+			super.mouseClicked(mx, my, buttonNum);
 		}
 	}
 
@@ -192,7 +231,6 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 			this.mc.displayScreen((Screen) null);
 		}
 	}
-
 
 	// ? Utils
 	public List<List<Character>> getAllPagesContent() {

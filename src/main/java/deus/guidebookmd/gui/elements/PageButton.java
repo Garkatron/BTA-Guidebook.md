@@ -9,17 +9,14 @@ public class PageButton extends MDGui {
 
 	public boolean visible = true;
 	public boolean disabled = false;
-	protected final MDPage page; // Reference to parent MDPage to access screen
 	public Runnable onClick = ()->{};
 	public int size = 16;
 
-	public PageButton(MDPage page, String texture) {
-		this.page = page;
+	public PageButton(String texture) {
 		this.texture = texture;
 	}
 
 	public PageButton() {
-		this.page = null;
 	}
 
 	@Override
@@ -34,7 +31,7 @@ public class PageButton extends MDGui {
 
 	@Override
 	public void mouseClick(int mx, int my) {
-		if (page == null || page.screen == null || disabled) return;
+		if (disabled) return;
 		super.mouseClick(mx, my);
 
 		int left = x;

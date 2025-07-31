@@ -514,9 +514,7 @@ public class TextArea extends MDGui {
 		StringBuilder lineBuffer = new StringBuilder();
 		int lineCharCount = 0;
 
-		for (int i = 0; i < characters.size(); i++) {
-			char c = characters.get(i);
-
+		for (char c : characters) {
 			if (c == '\n') {
 				lines.add(lineBuffer.toString());
 				lineBuffer.setLength(0);
@@ -538,6 +536,14 @@ public class TextArea extends MDGui {
 		}
 
 		return lines;
+	}
+
+	public String getContentAsString() {
+		StringBuilder sb = new StringBuilder();
+		for (Character character : characters) {
+			sb.append(character);
+		}
+		return sb.toString();
 	}
 
 	// ? API

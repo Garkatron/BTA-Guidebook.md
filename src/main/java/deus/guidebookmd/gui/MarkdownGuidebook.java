@@ -16,8 +16,6 @@ public class MarkdownGuidebook<E extends MDPage> extends MarkdownBook {
 	protected int currentPageNumber = -1;
 	protected final List<E> pages = new ArrayList<>();
 
-
-
 	// ? Load markdown
 	public MarkdownGuidebook() {
 
@@ -29,10 +27,7 @@ public class MarkdownGuidebook<E extends MDPage> extends MarkdownBook {
 		xOffset = (width - 158) / 2;
 		yOffset = (height - 220) / 2;
 
-
 		shareReferenceToComponents();
-		//currentPage = getCurrentPage().mdComponents;
-
 	}
 
 

@@ -6,9 +6,12 @@ import org.lwjgl.opengl.GL11;
 
 public class PageTurnIndicator extends PageButton {
 
+	MDPage page;
+
 	public int type = 0;
 	public PageTurnIndicator(int type, MDPage page) {
-		super(page, "");
+		super("");
+		this.page = page;
 		this.type = type;
 		size=24;
 	}

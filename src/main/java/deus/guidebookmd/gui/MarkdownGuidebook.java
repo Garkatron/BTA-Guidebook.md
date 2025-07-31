@@ -1,8 +1,7 @@
 package deus.guidebookmd.gui;
 
-import deus.guidebookmd.MarkdownCompiler;
+import deus.guidebookmd.formats.MarkdownCompiler;
 import deus.guidebookmd.components.MDComponent;
-import deus.guidebookmd.config.BookConfig;
 import net.minecraft.client.gui.ButtonElement;
 import net.minecraft.core.sound.SoundCategory;
 import org.lwjgl.opengl.GL11;

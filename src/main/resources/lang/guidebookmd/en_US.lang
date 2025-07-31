@@ -1,1 +1,3 @@
 item.guidebookmd.guide.name = Guidebook.md
+item.guidebookmd.editable_book.name = Editable Book
+item.guidebookmd.readonly_book.name = Readonly Book

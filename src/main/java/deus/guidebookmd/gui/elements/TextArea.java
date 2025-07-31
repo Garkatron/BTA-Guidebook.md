@@ -91,6 +91,14 @@ public class TextArea extends MDGui {
 		);
 	}
 
+	public List<Character> cloneContent() {
+		return new ArrayList<>(characters);
+	}
+
+	public void setContent(List<Character> characters) {
+		this.characters = characters;
+	}
+
 	// ? Functions
 	protected void paste() {
 		if (!clipboard.isEmpty()) {

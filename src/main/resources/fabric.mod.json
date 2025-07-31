@@ -31,7 +31,7 @@
 			"deus.guidebookmd.Guidebookmd"
 		],
 		"initModels": [
-			"deus.guidebookmd.Guidebookmd"
+			"deus.guidebookmd.Models"
 		]
 	},
   "mixins": [

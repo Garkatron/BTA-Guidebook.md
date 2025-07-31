@@ -1,6 +1,6 @@
 package deus.guidebookmd.gui;
 
-import deus.guidebookmd.MarkdownCompiler;
+import deus.guidebookmd.formats.MarkdownCompiler;
 import deus.guidebookmd.components.MDComponent;
 import deus.guidebookmd.config.PageConfig;
 import deus.guidebookmd.gui.elements.TextArea;

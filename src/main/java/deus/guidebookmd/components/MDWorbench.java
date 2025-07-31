@@ -1,8 +1,12 @@
 package deus.guidebookmd.components;
 
+import deus.guidebookmd.Guidebookmd;
 import net.minecraft.client.gui.ItemElement;
 import net.minecraft.client.render.texture.stitcher.TextureRegistry;
 import net.minecraft.core.item.Item;
+import net.minecraft.core.item.Items;
+import net.minecraft.core.util.HardIllegalArgumentException;
+import net.minecraft.core.util.collection.NamespaceID;
 
 public class MDWorbench extends MDFakeSlot {
 
@@ -26,7 +30,11 @@ public class MDWorbench extends MDFakeSlot {
 				if (n.equals("empty")) {
 					this.items[j] = null;
 				} else {
-					this.items[j] = ITEMS.get(n);
+					try {
+						this.item = Item.itemsMap.getOrDefault(NamespaceID.getTemp(n), Items.AMMO_PEBBLE);
+					} catch (HardIllegalArgumentException e) {
+						Guidebookmd.LOGGER.error(e.toString());
+					}
 				}
 			}
 		}

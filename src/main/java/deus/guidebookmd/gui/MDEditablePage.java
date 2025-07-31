@@ -1,6 +1,6 @@
 package deus.guidebookmd.gui;
 
-import deus.guidebookmd.MarkdownCompiler;
+import deus.guidebookmd.formats.MarkdownCompiler;
 import deus.guidebookmd.components.MDComponent;
 import deus.guidebookmd.config.PageConfig;
 import deus.guidebookmd.gui.elements.PageButton;
@@ -11,7 +11,11 @@ import java.util.List;
 
 public class MDEditablePage extends MDPage {
 
+	// ? State
 	public boolean editable = true;
+	public boolean canEdit = true;
+
+	// ? Components
 	public TextArea textArea = new TextArea();
 	private PageButton deleteButton = null;
 	private PageButton lockButton = null;
@@ -19,6 +23,7 @@ public class MDEditablePage extends MDPage {
 	private PageButton moveLeftButton = null;
 	private PageButton moveRightButton = null;
 
+	// ? Others
 	private final PageButton[] buttons = {
 		addButton = new PageButton(this, "guidebookmd:gui/hud/add"),
 		lockButton = new PageButton(this, "guidebookmd:gui/hud/lock"),
@@ -27,69 +32,18 @@ public class MDEditablePage extends MDPage {
 		moveRightButton = new PageButton(this, "guidebookmd:gui/hud/moveright"),
 	};
 
+	// ? Constructor
 	public MDEditablePage(PageConfig config, List<MDComponent> mdComponents) {
 		super(config, mdComponents);
 
-		moveLeftButton.onClick = () -> {
-			if (screen instanceof MarkdownGuidebook) {
-				MarkdownGuidebook<MDEditablePage> p = (MarkdownGuidebook<MDEditablePage>) screen;
-				if (number <= 0) return;
+		// ? Buttons logic
+		moveLeftButton.onClick = this::moveLeft;
+		moveRightButton.onClick = this::moveRight;
+		deleteButton.onClick = this::delete;
+		lockButton.onClick = this::lock;
+		addButton.onClick = this::add;
 
-				MDEditablePage a = p.pages.get(number);
-				MDEditablePage b = p.pages.get(number - 1);
-				p.pages.set(number, b);
-				p.pages.set(number - 1, a);
-			}
-		};
-
-		moveRightButton.onClick = () -> {
-			if (screen instanceof MarkdownGuidebook) {
-				MarkdownGuidebook<MDEditablePage> p = (MarkdownGuidebook<MDEditablePage>) screen;
-
-				int index = p.currentPageNumber;
-				if (index >= p.pages.size() - 1) return;
-
-				MDEditablePage a = p.pages.get(index);
-				MDEditablePage b = p.pages.get(index + 1);
-				p.pages.set(index, b);
-				p.pages.set(index + 1, a);
-			}
-		};
-
-
-		deleteButton.onClick = () -> {
-			if (screen instanceof MarkdownGuidebook) {
-				MarkdownGuidebook<MDEditablePage> p = (MarkdownGuidebook<MDEditablePage>) screen;
-				if (p.pages.size() > 1) {
-					int index = p.pages.indexOf(this);
-					p.pages.remove(this);
-					p.goTo(p.pages.size() - 1);
-
-				}
-			}
-		};
-		lockButton.onClick = () -> {
-			editable = !editable;
-			if (editable) {
-				lockButton.texture = "guidebookmd:gui/hud/lock";
-				deleteButton.texture = "guidebookmd:gui/hud/delete";
-
-			} else {
-				lockButton.texture = "guidebookmd:gui/hud/unlock";
-				deleteButton.texture = "guidebookmd:gui/hud/cant_delete";
-			}
-		};
-
-		addButton.onClick = () -> {
-			if (screen instanceof MarkdownGuidebook) {
-				MarkdownGuidebook<MDEditablePage> p = (MarkdownGuidebook<MDEditablePage>) screen;
-				MDEditablePage page = new MDEditablePage(new PageConfig(), new ArrayList<>());
-				page.setScreen(screen);
-				p.pages.add(page);
-				p.goTo(p.pages.size() - 1);
-			}
-		};
-
+		// ? Config textarea
 		textArea.drawBackground = false;
 		textArea.autoWrap = false;
 		textArea.maxTextLength = 22;
@@ -97,6 +51,24 @@ public class MDEditablePage extends MDPage {
 		disableScissor = true;
 	}
 
+	public MDEditablePage(PageConfig config, List<MDComponent> mdComponents, boolean editable) {
+		this(config, mdComponents);
+		this.editable = editable;
+
+		if (!editable) {
+			this.editable = true;
+			lock();
+			lockButton.texture = "guidebookmd:gui/hud/blocked_lock";
+			this.editable = false;
+			this.lockButton.disabled = true;
+			this.deleteButton.disabled = true;
+			this.addButton.disabled = true;
+			this.moveLeftButton.disabled = true;
+			this.moveRightButton.disabled = true;
+		}
+	}
+
+	// ? Methods
 	@Override
 	public void render(int textXPos, int textYPos, int pageXTexturePos) {
 		super.render(textXPos, textYPos, pageXTexturePos);
@@ -108,7 +80,7 @@ public class MDEditablePage extends MDPage {
 		textArea.height = pageConfig.pageTextureHeight - 10;
 
 
-		if (editable) {
+		if (canEdit) {
 			mdComponents = MarkdownCompiler.compile(textArea.getLines()).mdComponents;
 			config = MarkdownCompiler.compile(textArea.getLines()).config;
 		}
@@ -136,7 +108,8 @@ public class MDEditablePage extends MDPage {
 	@Override
 	public void update() {
 		super.update();
-		if (editable) {
+
+		if (canEdit) {
 			textArea.updateMousePos(mx, my);
 			textArea.update();
 		}
@@ -145,7 +118,7 @@ public class MDEditablePage extends MDPage {
 	@Override
 	protected void drawMarkdown(int textXPos, int textYPos, boolean centered, boolean centeredMaxWidth) {
 
-		if (editable) {
+		if (canEdit) {
 			textArea.render();
 		} else {
 			super.drawMarkdown(textXPos, textYPos, centered, centeredMaxWidth);
@@ -156,10 +129,82 @@ public class MDEditablePage extends MDPage {
 	public void mouseClick(int mx, int my) {
 		super.mouseClick(mx, my);
 		for (PageButton button : buttons) {
-
 			button.mouseClick(mx, my);
 		}
-
-
 	}
+
+	// ? Utils
+	public boolean canEdit() {
+		return editable && canEdit;
+	}
+
+	public void compileContent() {
+		this.mdComponents = MarkdownCompiler.compile(textArea.getLines()).mdComponents;
+		this.config = MarkdownCompiler.compile(textArea.getLines()).config;
+	}
+
+	// ? Buttons logic
+	public void moveLeft() {
+		if (screen instanceof MarkdownGuidebook) {
+			MarkdownGuidebook<MDEditablePage> p = (MarkdownGuidebook<MDEditablePage>) screen;
+			if (number <= 0) return;
+
+			MDEditablePage a = p.pages.get(number);
+			MDEditablePage b = p.pages.get(number - 1);
+			p.pages.set(number, b);
+			p.pages.set(number - 1, a);
+		}
+	}
+
+	public void moveRight() {
+		if (screen instanceof MarkdownGuidebook) {
+			MarkdownGuidebook<MDEditablePage> p = (MarkdownGuidebook<MDEditablePage>) screen;
+
+			int index = p.currentPageNumber;
+			if (index >= p.pages.size() - 1) return;
+
+			MDEditablePage a = p.pages.get(index);
+			MDEditablePage b = p.pages.get(index + 1);
+			p.pages.set(index, b);
+			p.pages.set(index + 1, a);
+		}
+	}
+
+	public void delete() {
+		if (screen instanceof MarkdownGuidebook) {
+			MarkdownGuidebook<MDEditablePage> p = (MarkdownGuidebook<MDEditablePage>) screen;
+			if (p.pages.size() > 1) {
+				int index = p.pages.indexOf(this);
+				p.pages.remove(this);
+				p.goTo(p.pages.size() - 1);
+
+			}
+		}
+	}
+
+	public void add() {
+		if (screen instanceof MarkdownGuidebook) {
+			MarkdownGuidebook<MDEditablePage> p = (MarkdownGuidebook<MDEditablePage>) screen;
+			MDEditablePage page = new MDEditablePage(new PageConfig(), new ArrayList<>());
+			page.setScreen(screen);
+			p.pages.add(page);
+			p.goTo(p.pages.size() - 1);
+		}
+	}
+
+	public void lock() {
+		if (editable) {
+			canEdit = !canEdit;
+			if (canEdit) {
+				lockButton.texture = "guidebookmd:gui/hud/lock";
+				deleteButton.texture = "guidebookmd:gui/hud/delete";
+
+			} else {
+				lockButton.texture = "guidebookmd:gui/hud/unlock";
+				deleteButton.texture = "guidebookmd:gui/hud/cant_delete";
+			}
+		}
+	}
+
+
 }

@@ -1,5 +1,6 @@
-package deus.guidebookmd;
+package deus.guidebookmd.formats;
 
+import deus.guidebookmd.Guidebookmd;
 import deus.guidebookmd.components.*;
 import deus.guidebookmd.gui.MDPage;
 import deus.guidebookmd.config.PageConfig;

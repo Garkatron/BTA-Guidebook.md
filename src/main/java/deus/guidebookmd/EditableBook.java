@@ -249,7 +249,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 
 	public void drawButtons(int mx, int my) {
 		int startY = (height/2)-85;
-		int buttonX = (width/2)+170;
+		int buttonX = (width/2)+157;
 		int base = 16;
 
 		addPageButton.x = buttonX;

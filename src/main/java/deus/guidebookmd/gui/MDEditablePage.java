@@ -80,7 +80,7 @@ public class MDEditablePage extends MDPage {
 			config = MarkdownCompiler.compile(textArea.getLines()).config;
 		}
 
-		int buttonY = this.y + textYPos - 18;
+		int buttonY = this.y + textYPos - 20;
 		int startX = this.x + textXPos + pageConfig.pageTextureWidth - 128;
 		int base = 16;
 

@@ -337,7 +337,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 						return "";
 					}
 
-					Object linesResult = TextEditor.getLines(characters, 22);
+					Object linesResult = TextEditor.getLines(characters, 22, true);
 					if (linesResult instanceof List) {
 
 						return ((List<String>) linesResult).stream()

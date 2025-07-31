@@ -6,6 +6,7 @@ import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  *
@@ -463,10 +464,11 @@ public class TextEditor extends MDGui {
 	}
 
 	private boolean isAtEnd() {
-		return characters.isEmpty();
+		return currentCharPos<=0;
 	}
 
 	private char peek() {
+		if(currentCharPos<0)return 0;
 		return characters.get(currentCharPos-1);
 	}
 
@@ -513,10 +515,10 @@ public class TextEditor extends MDGui {
 	}
 
 	public List<String> getLines() {
-		return getLines(characters, maxTextLength);
+		return getLines(characters, maxTextLength, false);
 	}
 
-	public static List<String> getLines(List<Character> characters, int maxTextLength) {
+	public static List<String> getLines(List<Character> characters, int maxTextLength, boolean maxTextLengthSeparator) {
 		List<String> lines = new ArrayList<>();
 		StringBuilder lineBuffer = new StringBuilder();
 		int lineCharCount = 0;
@@ -530,7 +532,7 @@ public class TextEditor extends MDGui {
 				lineBuffer.append(c);
 				lineCharCount++;
 
-				if (lineCharCount >= maxTextLength) {
+				if (maxTextLengthSeparator && lineCharCount >= maxTextLength) {
 					lines.add(lineBuffer.toString());
 					lineBuffer.setLength(0);
 					lineCharCount = 0;

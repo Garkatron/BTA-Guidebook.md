@@ -17,10 +17,10 @@ public class MDFakeSlot extends MDComponent {
 
 	public MDFakeSlot(String item) {
 		try {
-			this.item = Item.itemsMap.getOrDefault(NamespaceID.getTemp(item), Items.AMMO_PEBBLE);
+			this.item = Item.itemsMap.getOrDefault(NamespaceID.getTemp(item), DEFAULT_ITEM);
 			this.itemElement = new ItemElement(mc);
 			width = 18;
-			height = 18;
+			height = 20;
 		} catch (HardIllegalArgumentException e) {
 			Guidebookmd.LOGGER.error(e.toString());
 		}
@@ -30,8 +30,8 @@ public class MDFakeSlot extends MDComponent {
 	public void render(int x, int y, int mx, int my) {
 		super.render(x, y, mx, my);
 
-		drawTexturedIcon(x, y, width, height, TextureRegistry.getTexture("guidebookmd:gui/hud/slot"));
-		this.itemElement.render(item.getDefaultStack(), x, y);
+		drawTexturedIcon(x, y, width, height-2, TextureRegistry.getTexture("guidebookmd:gui/hud/slot"));
+		this.itemElement.render(item.getDefaultStack(), x+1, y+1);
 	}
 
 

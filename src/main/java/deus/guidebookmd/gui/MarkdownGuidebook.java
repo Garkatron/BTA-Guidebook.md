@@ -155,7 +155,6 @@ public class MarkdownGuidebook<E extends MDPage> extends MarkdownBook {
 
 
 	public void loadMarkdownPages(String... paths) {
-		pages.clear();
 		for (String path : paths) {
 			loadMarkdownPage(path);
 		}

@@ -15,7 +15,9 @@ public class IntroBook extends MarkdownGuidebook<MDPage> {
 			"syntax.md",
 			"specials.md",
 			"formats.md",
-			"comingsoon.md",
+			"editablebook.md",
+			"readonlybook.md",
+			"commands.md",
 			"details.md"
 		};
 		for (String page : pages) {

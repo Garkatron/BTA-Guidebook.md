@@ -6,7 +6,7 @@ import com.mojang.brigadier.builder.ArgumentBuilderLiteral;
 import com.mojang.brigadier.builder.ArgumentBuilderRequired;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.nbt.tags.CompoundTag;
-import deus.guidebookmd.gui.elements.TextArea;
+import deus.guidebookmd.gui.elements.TextEditor;
 import deus.guidebookmd.item.Items;
 import deus.guidebookmd.utils.RLoading;
 import net.minecraft.core.entity.player.Player;
@@ -77,8 +77,8 @@ public class GuideBookCommand implements CommandManager.CommandRegistry {
 		}
 
 		// Check if the held item is an editable book
-		if (stack.itemID != Items.MD_ITEM_EDITABLE_BOOK.id) {
-			source.sendMessage("You must hold an editable book to load a book");
+		if (stack.itemID != net.minecraft.core.item.Items.BOOK.id) {
+			source.sendMessage("You must hold an book to load a book");
 			return 0;
 		}
 
@@ -88,7 +88,7 @@ public class GuideBookCommand implements CommandManager.CommandRegistry {
 
 				ItemStack newStack = new ItemStack(Items.MD_ITEM_EDITABLE_BOOK, 1);
 				CompoundTag compoundTag = newStack.getData();
-				String pages = TextArea.fuseStrings(RLoading.loadMarkdownFilesFromFolderName(title));
+				String pages = TextEditor.fuseStrings(RLoading.loadMarkdownFilesFromFolderName(title));
 				compoundTag.putString("pages", pages);
 				newStack.setData(compoundTag);
 				player.world.dropItem((int) player.x, (int) player.y, (int) player.z, newStack);

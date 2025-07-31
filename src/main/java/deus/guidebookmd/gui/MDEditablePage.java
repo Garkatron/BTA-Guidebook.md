@@ -4,7 +4,7 @@ import deus.guidebookmd.formats.MarkdownCompiler;
 import deus.guidebookmd.components.MDComponent;
 import deus.guidebookmd.config.PageConfig;
 import deus.guidebookmd.gui.elements.PageButton;
-import deus.guidebookmd.gui.elements.TextArea;
+import deus.guidebookmd.gui.elements.TextEditor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class MDEditablePage extends MDPage {
 	public boolean canEdit = true;
 
 	// ? Components
-	public TextArea textArea = new TextArea();
+	public TextEditor textArea = new TextEditor();
 	private PageButton deleteButton = null;
 	private PageButton lockButton = null;
 	private PageButton moveLeftButton = null;

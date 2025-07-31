@@ -5,7 +5,7 @@ import deus.guidebookmd.config.BookConfig;
 import deus.guidebookmd.gui.MDEditablePage;
 import deus.guidebookmd.gui.MarkdownGuidebook;
 import deus.guidebookmd.gui.elements.PageButton;
-import deus.guidebookmd.gui.elements.TextArea;
+import deus.guidebookmd.gui.elements.TextEditor;
 import deus.guidebookmd.item.Items;
 import net.minecraft.client.gui.ButtonElement;
 import net.minecraft.client.gui.Screen;
@@ -33,7 +33,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 	private final PageButton exportBookButton = new PageButton("guidebookmd:gui/hud/export");
 	private final PageButton addPageButton = new PageButton("guidebookmd:gui/hud/add");
 	private final PageButton cloneButton = new PageButton("guidebookmd:gui/hud/clone");
-	private final TextArea titleTextArea = new TextArea();
+	private final TextEditor titleTextArea = new TextEditor();
 
 	// ? Stuff
 	private final ItemStack itemStack;
@@ -337,7 +337,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 						return "";
 					}
 
-					Object linesResult = TextArea.getLines(characters, 22);
+					Object linesResult = TextEditor.getLines(characters, 22);
 					if (linesResult instanceof List) {
 
 						return ((List<String>) linesResult).stream()

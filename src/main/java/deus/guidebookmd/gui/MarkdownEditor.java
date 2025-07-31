@@ -3,7 +3,7 @@ package deus.guidebookmd.gui;
 import deus.guidebookmd.formats.MarkdownCompiler;
 import deus.guidebookmd.components.MDComponent;
 import deus.guidebookmd.config.PageConfig;
-import deus.guidebookmd.gui.elements.TextArea;
+import deus.guidebookmd.gui.elements.TextEditor;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ public class MarkdownEditor extends MarkdownBook {
 
 	// List<MDComponent> mdComponents = new ArrayList<>();
 	MDPage page = new MDPage(new PageConfig(), new ArrayList<>());
-	TextArea textArea = new TextArea();
+	TextEditor textArea = new TextEditor();
 
 	@Override
 	public void init() {

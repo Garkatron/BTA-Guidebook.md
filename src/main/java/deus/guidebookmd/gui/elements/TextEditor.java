@@ -10,7 +10,7 @@ import java.util.List;
 /**
  *
  */
-public class TextArea extends MDGui {
+public class TextEditor extends MDGui {
 
 	// ? State
 	private boolean wasClicked = false;
@@ -76,7 +76,7 @@ public class TextArea extends MDGui {
 	// ? API
 	public final Signal<List<Character>> $onTextChanged = new Signal<>();
 
-	public TextArea() {
+	public TextEditor() {
 		currentCharPos = characters.size();
 		$onTextChanged.connect(
 			(s, chars)->{
@@ -190,7 +190,6 @@ public class TextArea extends MDGui {
 		// Right border
 		this.drawRect(right, top, right + 1, bottom, borderColor);
 	}
-
 
 	protected void drawText() {
 		int textColor = focused ? focusTextColor : this.textColor;
@@ -395,7 +394,6 @@ public class TextArea extends MDGui {
 					return;
 				}
 
-
 				if (key == Keyboard.KEY_C && isCtrl) {
 					if (selectStartChar != selectLastChar) {
 						copy(selectStartChar, selectLastChar);
@@ -410,6 +408,11 @@ public class TextArea extends MDGui {
 					undo();
 				} else if (isCtrl && Keyboard.isKeyDown(Keyboard.KEY_Y)) {
 					redo();
+
+				} else if (isCtrl && Keyboard.isKeyDown(Keyboard.KEY_END)) {
+					currentCharPos = characters.size()-1;
+				} else if (isCtrl && Keyboard.isKeyDown(Keyboard.KEY_HOME)) {
+					currentCharPos = 0;
 
 				} else if (isShift && key == Keyboard.KEY_BACK) {
 					deleteSequence(selectStartChar, selectLastChar);
@@ -433,10 +436,15 @@ public class TextArea extends MDGui {
 					if (currentCharPos < characters.size()) {
 						currentCharPos++;
 					}
+				} else if (key == Keyboard.KEY_UP) {
+
+				} else if (key == Keyboard.KEY_DOWN) {
+
+
 				} else if (key == Keyboard.KEY_END) {
-					currentCharPos = currentLineCharCount;
+					currentCharPos = getEndOfCurrentLineCharPos();
 				} else if (key == Keyboard.KEY_HOME) {
-					currentCharPos -= currentLineCharCount;
+					currentCharPos = getCurrentLineCharPos();
 
 				}  else if (Character.isDefined(character) && !Character.isISOControl(character)) {
 					addCharacter(character);
@@ -475,17 +483,11 @@ public class TextArea extends MDGui {
 		return mx >= x && my >= y && mx < x + width && my < y + height;
 	}
 
+
 	// ? Utility
 	private void addCharacter(char character) {
-		if (currentLineCharCount >= maxTextLength && character != '\n') {
-			if (autoWrap && currentLine < maxLines + 1) {
-				jumpLine();
-			} else {
-				return;
-			}
-		}
 
-		if (currentLine <=  maxLines + 1) {
+		if (currentLine <= maxLines + 1) {
 			characters.add(currentCharPos, character);
 			currentCharPos++;
 			$onTextChanged.emit(characters);
@@ -502,6 +504,7 @@ public class TextArea extends MDGui {
 			}
 		}
 	}
+
 	private void jumpLine() {
 		if (currentLine-1 >= maxLines) return; // Allow jumping up to maxLines
 		characters.add(currentCharPos, '\n');
@@ -550,6 +553,44 @@ public class TextArea extends MDGui {
 		return sb.toString();
 	}
 
+	private int getCharAt(int charX, int line) {
+		return line * maxTextLength + charX;
+	}
+
+	private  int getEndOfCurrentLineCharPos() {
+		int i = getCurrentLineCharPos();
+		while (i < characters.size() && characters.get(i) != '\n') {
+			i++;
+		}
+		return i;
+	}
+
+	private int getCurrentLineCharPos() {
+		if (currentCharPos <= 0) return 0;
+		if (currentCharPos >= characters.size()) currentCharPos = characters.size()-1;
+		for (int i = currentCharPos; i >= 0; i--) {
+			if (!(i == 0)&& characters.get(i-1) == '\n') {
+				return i;
+			}
+		}
+		return currentCharPos;
+	}
+
+	int charIndexInLine() {
+		int startOfLine = getCurrentLineCharPos();
+		return currentCharPos - startOfLine;
+	}
+
+	private int getLineNumber() {
+		int line = 0;
+		for (int i = 0; i < currentCharPos; i++) {
+			if (characters.get(i) == '\n') {
+				line++;
+			}
+		}
+		return line;
+	}
+
 
 	public static String fuseStrings(List<String> strings) {
 		StringBuilder sb = new StringBuilder();
@@ -560,6 +601,39 @@ public class TextArea extends MDGui {
 	}
 
 
+	private int getLineCharCount(int targetLine) {
+		if (targetLine >= maxLines) return 0;
+
+		int currentLine = 0;
+		int currentLineCharCount = 0;
+
+		for (int i = 0; i < characters.size(); i++) {
+			char c = characters.get(i);
+
+			if (c == '\n' || currentLineCharCount >= maxTextLength) {
+				if (currentLine == targetLine) {
+					return currentLineCharCount;
+				}
+				currentLine++;
+				currentLineCharCount = 0;
+
+				if (c != '\n') {
+					currentLineCharCount = 1;
+				}
+
+				if (currentLine > targetLine) break;
+
+			} else {
+				currentLineCharCount++;
+			}
+		}
+
+		if (currentLine == targetLine) {
+			return currentLineCharCount;
+		}
+
+		return 0;
+	}
 	// ? API
 	public void whilePressed() {
 	}

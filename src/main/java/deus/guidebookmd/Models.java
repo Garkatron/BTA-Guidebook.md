@@ -45,6 +45,7 @@ public class Models implements ModelEntrypoint {
 				model.icon = TextureRegistry.getTexture(Items.MD_ITEM_READONLY_BOOK.namespaceID);
 				return model;
 			});
+
 	}
 	@Override
 	public void initEntityModels(EntityRenderDispatcher entityRenderDispatcher) {

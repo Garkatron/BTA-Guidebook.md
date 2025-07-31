@@ -225,15 +225,10 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 	@Override
 	public void keyPressed(char eventCharacter, int eventKey, int mx, int my) {
 		if (eventKey == Keyboard.KEY_ESCAPE) {
-
 			completeSaveToItemStack(player, itemStack);
-
 			this.mc.displayScreen((Screen) null);
 		}
 		if (eventKey == Keyboard.KEY_TAB) {
-
-			dropReadOnlybook();
-
 			this.mc.displayScreen((Screen) null);
 		}
 	}
@@ -282,19 +277,25 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 		return data;
 	}
 
-	public void dropReadOnlybook() {
-		player.world.dropItem((int) player.x, (int) player.y, (int) player.z, exportItemStackBook(player, itemStack, false));
-		this.mc.displayScreen((Screen) null);
-	}
-
 	// ? Buttons
 	public void cloneBook() {
-		player.world.dropItem((int) player.x, (int) player.y, (int) player.z, exportItemStackBook(player, itemStack, true));
+		if (player.inventory.consumeInventoryItem(net.minecraft.core.item.Items.BOOK.id)) {
+			player.world.dropItem((int) player.x, (int) player.y, (int) player.z, exportItemStackBook(player, itemStack, true));
+			player.sendMessage("§aBook successfully cloned.");
+		} else {
+			player.sendMessage("§cYou need an editable-book to clone this book.");
+		}
 		this.mc.displayScreen((Screen) null);
 	}
 
 	public void exportBook() {
-		player.world.dropItem((int) player.x, (int) player.y, (int) player.z, exportItemStackBook(player, itemStack, false));
+		if (player.inventory.consumeInventoryItem(net.minecraft.core.item.Items.BOOK.id)) {
+			player.world.dropItem((int) player.x, (int) player.y, (int) player.z, exportItemStackBook(player, itemStack, false));
+			player.sendMessage("§aBook successfully exported.");
+		} else {
+			player.sendMessage("§cYou need an book to export this book.");
+		}
 		this.mc.displayScreen((Screen) null);
 	}
+
 }

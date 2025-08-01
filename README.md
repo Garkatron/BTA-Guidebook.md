@@ -86,6 +86,10 @@ public class MyMDScreen extends MDScreen {
 Use the editable book in-game and export the Markdown content to use in your project!
 Or use it to share information with your friends in your world!
 
+<img width="449" height="202" alt="image" src="https://github.com/user-attachments/assets/0b85c816-d925-4c9f-ad51-09d9522b3423" />
+
+<img width="1143" height="838" alt="image" src="https://github.com/user-attachments/assets/95a1e704-cd25-4433-bfa3-c5179f93b5e9" />
+
 # Commands
 Export or load markdown books.
 

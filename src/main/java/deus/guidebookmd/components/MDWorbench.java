@@ -14,13 +14,14 @@ public class MDWorbench extends MDFakeSlot {
 	protected Item[] items = new Item[9];
 
 	public MDWorbench(String itemsStr) {
-		super("");
+		super(Items.AMMO_PEBBLE.namespaceID.toString());
 		width = 18 * 3;
 		height = 18 * 3;
 
 		for (int i = 0; i < 9; i++) {
 			elements[i] = new ItemElement(mc);
 		}
+
 		try {
 			String trimmed = itemsStr.trim();
 			if (!trimmed.isEmpty()) {
@@ -30,8 +31,11 @@ public class MDWorbench extends MDFakeSlot {
 					if (n.equals("empty")) {
 						this.items[j] = null;
 					} else {
+						NamespaceID namespace = NamespaceID.getTemp(n);
+						if (Item.itemsMap.containsKey(namespace)) {
+							this.items[j] = Item.itemsMap.getOrDefault(namespace, Items.AMMO_PEBBLE);
 
-						this.item = Item.itemsMap.getOrDefault(NamespaceID.getTemp(n), Items.AMMO_PEBBLE);
+						}
 
 					}
 				}

@@ -47,34 +47,28 @@ Regular &3Markdown syntax adapted for &6BTA Guidebook format:
 **Images**
 - [text](/assets/modid/textures/path/to/img.png)(width,height,type)
 - ![slot](modid:item/name)
-- ![workbench](empty,empty,empty,empty,empty,empty,empty,empty,empty)
+- ![workbench](empty,empty,empty,empty,empty,empty,empty,empty,empty, empty)
 ```
 - Width & Height in pixels
 - type = default | icon or (no text) to use default option
-
-More info on the mod's GitHub wiki!
+- The workbench last slot it's for output item
 
 # How to use?
 ### Markdown guidebook
 ```java
-public class MyBook extends MDBookScreen {
+public class MyBook extends MarkdownGuidebook<MDPage> {
 
-	public IntroBook() {
-		String path = "/assets/modid/markdown/bookname/";
-		config = BookConfig.fromJsonResource(getClass(), path + "config.json");
-		String[] pages = {
-			"index.md", // Page 0
-			"intro.md", // Page 1
-			"page2.md",
-			"page3.md",
-			"page4.md",
-			"page5.md",
-			"page6.md" // Last page
-		};
-		for (String page : pages) {
-			loadMarkdownPages(path + page); // Load markdown
-		}
-	}
+    public IntroBook() {
+        String path = "/assets/modid/markdown/mybook/";
+        config = BookConfig.fromJsonResource(getClass(), path + "config.json");
+
+        DecimalFormat formatter = new DecimalFormat("000");
+        for (int i = 0; i<11; i++) {
+            String fileName = "page_" + formatter.format(i + 1) + ".md";
+
+            loadMarkdownPages(path + fileName);
+        }
+    }
 }
 ```
 
@@ -87,6 +81,20 @@ public class MyMDScreen extends MDScreen {
     }
 }
 ```
+
+# In-Game Markdown Editor
+Use the editable book in-game and export the Markdown content to use in your project!
+Or use it to share information with your friends in your world!
+
+# Commands
+Export or load markdown books.
+
+* Use: /guidebook export <title>
+  * to export to: btafolder/guidebook/exported/<title>
+
+* Use: /guidebook load <title>
+  * Load from: btafolder/guidebook/load/<title>
+
 
 ### Showcase
 Download the zip with the files in the release page

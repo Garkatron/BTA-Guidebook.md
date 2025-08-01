@@ -4,8 +4,4 @@ An in-game markdown book
 editor for players and
 modders to create books
 or guides.
-![slot](guidebookmd:item/
-editable_book)
-![workbench](minecraft:
-paintbrush,minecraft:item/
-book)
+![workbench](minecraft:item/paintbrush,minecraft:item/book,empty,empty,empty,empty,empty,empty,empty,guidebookmd:item/editable_book)

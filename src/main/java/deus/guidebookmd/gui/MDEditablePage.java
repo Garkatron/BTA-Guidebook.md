@@ -77,11 +77,6 @@ public class MDEditablePage extends MDPage {
 		textArea.width = pageConfig.pageTextureWidth - 15;
 		textArea.height = pageConfig.pageTextureHeight - 10;
 
-		if (canEdit) {
-			mdComponents = MarkdownCompiler.compile(textArea.getLines(true)).mdComponents;
-			config = MarkdownCompiler.compile(textArea.getLines(false)).config;
-		}
-
 		int buttonY = this.y + textYPos - 20;
 		int startX = this.x + textXPos + pageConfig.pageTextureWidth - 128;
 		int base = 16;
@@ -190,12 +185,13 @@ public class MDEditablePage extends MDPage {
 	}
 
 	public void lock() {
+		mdComponents = MarkdownCompiler.compile(textArea.getLines(true)).mdComponents;
+		config = MarkdownCompiler.compile(textArea.getLines(false)).config;
 		if (editable) {
 			canEdit = !canEdit;
 			if (canEdit) {
 				lockButton.texture = "guidebookmd:gui/hud/lock";
 				deleteButton.texture = "guidebookmd:gui/hud/delete";
-
 			} else {
 				lockButton.texture = "guidebookmd:gui/hud/unlock";
 				deleteButton.texture = "guidebookmd:gui/hud/cant_delete";

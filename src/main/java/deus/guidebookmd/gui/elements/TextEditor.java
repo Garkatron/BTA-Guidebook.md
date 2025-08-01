@@ -538,17 +538,23 @@ public class TextEditor extends MDGui {
 		List<String> lines = new ArrayList<>();
 		StringBuilder lineBuffer = new StringBuilder();
 		int lineCharCount = 0;
+		boolean startsWithExclamation = false;
 
 		for (char c : characters) {
+			if (lineBuffer.length() == 0 && c == '!') {
+				startsWithExclamation = true;
+			}
+
 			if (c == '\n') {
 				lines.add(lineBuffer.toString());
 				lineBuffer.setLength(0);
 				lineCharCount = 0;
+				startsWithExclamation = false;
 			} else {
 				lineBuffer.append(c);
 				lineCharCount++;
 
-				if (maxTextLengthSeparator && lineCharCount >= maxTextLength) {
+				if (maxTextLengthSeparator && lineCharCount >= maxTextLength && !startsWithExclamation) {
 					lines.add(lineBuffer.toString());
 					lineBuffer.setLength(0);
 					lineCharCount = 0;

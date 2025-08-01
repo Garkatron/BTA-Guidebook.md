@@ -21,7 +21,7 @@ public class MDFakeSlot extends MDComponent {
 			height = 20;
 			this.item = Item.itemsMap.getOrDefault(NamespaceID.getTemp(item), DEFAULT_ITEM);
 			this.itemElement = new ItemElement(mc);
-;
+
 		} catch (HardIllegalArgumentException e) {
 
 			Guidebookmd.LOGGER.error(e.toString());

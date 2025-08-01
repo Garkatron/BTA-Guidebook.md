@@ -15,7 +15,7 @@ public class Items {
 
 	public static void initialize() {
 		MD_ITEM_GUIDE = genericItemBuilder.build(new ItemGuidebookmd("guide",Guidebookmd.MOD_ID+":item/guide", Guidebookmd.CFG.getInt("IDs.guidebook")));
-		MD_ITEM_EDITABLE_BOOK = genericItemBuilder.build(new ItemEditableBook("editable_book",Guidebookmd.MOD_ID+":item/editable_book", Guidebookmd.CFG.getInt("IDs.guidebook")+1, true));
-		MD_ITEM_READONLY_BOOK = genericItemBuilder.build(new ItemEditableBook("readonly_book",Guidebookmd.MOD_ID+":item/readonly_book", Guidebookmd.CFG.getInt("IDs.guidebook")+2, false));
+		MD_ITEM_EDITABLE_BOOK = genericItemBuilder.build(new ItemEditableBook("editable_book",Guidebookmd.MOD_ID+":item/editable_book", Guidebookmd.CFG.getInt("IDs.editable_book"), true));
+		MD_ITEM_READONLY_BOOK = genericItemBuilder.build(new ItemEditableBook("readonly_book",Guidebookmd.MOD_ID+":item/readonly_book", Guidebookmd.CFG.getInt("IDs.readonly_book"), false));
 	}
 }

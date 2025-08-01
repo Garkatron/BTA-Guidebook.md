@@ -25,7 +25,9 @@ public class Guidebookmd implements ModInitializer, RecipeEntrypoint, GameStartE
 
 	static {
 		TOML.addCategory("IDs")
-			.addEntry("guidebook", 25000);
+			.addEntry("guidebook", 25000)
+			.addEntry("readonly_book", 25001)
+			.addEntry("editable_book", 25002);
 
 		CFG = new TomlConfigHandler(MOD_ID, TOML);
 	}

@@ -98,7 +98,7 @@ public class MarkdownGuidebook<E extends MDPage> extends MarkdownBook {
 			currentPageNumber = 0;
 		} else {
 			currentPageNumber += config.pageSkipAmount;
-			if (currentPageNumber >= pages.size()) currentPageNumber = 0;
+			if (currentPageNumber >= pages.size()) goTo(pages.size()-1);
 			playPageSound();
 		}
 	}

@@ -72,9 +72,9 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 			.mapToObj(ch -> (char) ch)
 			.collect(Collectors.toList()));
 
-		exportBookButton.onClick = this::exportBook;
-		cloneButton.onClick = this::cloneBook;
-		addPageButton.onClick = this::addPage;
+		exportBookButton.onClick = this::exportBookButtonOnclick;
+		cloneButton.onClick = this::cloneButtonOnclick;
+		addPageButton.onClick = this::addPageButtonOnclick;
 
 		exportBookButton.disabled = cloneButton.disabled = addPageButton.disabled = !this.editable;
 
@@ -285,7 +285,11 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 	}
 
 	// ? Buttons
-	public void cloneBook() {
+	public void addPageButtonOnclick() {
+		addPage();
+		goNext();
+	}
+	public void cloneButtonOnclick() {
 		if (player.inventory.consumeInventoryItem(net.minecraft.core.item.Items.BOOK.id)) {
 			player.world.dropItem((int) player.x, (int) player.y, (int) player.z, exportItemStackBook(player, itemStack, true));
 			player.sendMessage("§aBook successfully cloned.");
@@ -295,7 +299,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 		this.mc.displayScreen((Screen) null);
 	}
 
-	public void exportBook() {
+	public void exportBookButtonOnclick() {
 		if (player.inventory.consumeInventoryItem(net.minecraft.core.item.Items.BOOK.id)) {
 			player.world.dropItem((int) player.x, (int) player.y, (int) player.z, exportItemStackBook(player, itemStack, false));
 			player.sendMessage("§aBook successfully exported.");

@@ -316,7 +316,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 		}
 		title = title.replaceAll("[<>:\"/\\\\|?*]", "_");
 
-		String directoryPath = Guidebookmd.BOOKS_DIRECTORY + title + "/exported/";
+		String directoryPath = Guidebookmd.BOOKS_DIRECTORY + "/exported/" + title ;
 		Path dir = Paths.get(directoryPath);
 
 		try {
@@ -337,7 +337,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 						return "";
 					}
 
-					Object linesResult = TextEditor.getLines(characters, 22, true);
+					Object linesResult = TextEditor.getLines(characters, 26, true);
 					if (linesResult instanceof List) {
 
 						return ((List<String>) linesResult).stream()

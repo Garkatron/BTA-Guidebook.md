@@ -21,22 +21,23 @@ public class MDWorbench extends MDFakeSlot {
 		for (int i = 0; i < 9; i++) {
 			elements[i] = new ItemElement(mc);
 		}
+		try {
+			String trimmed = itemsStr.trim();
+			if (!trimmed.isEmpty()) {
+				String[] split = trimmed.split(",");
+				for (int j = 0; j < 9 && j < split.length; j++) {
+					String n = split[j].trim();
+					if (n.equals("empty")) {
+						this.items[j] = null;
+					} else {
 
-		String trimmed = itemsStr.trim();
-		if (!trimmed.isEmpty()) {
-			String[] split = trimmed.split(",");
-			for (int j = 0; j < 9 && j < split.length; j++) {
-				String n = split[j].trim();
-				if (n.equals("empty")) {
-					this.items[j] = null;
-				} else {
-					try {
 						this.item = Item.itemsMap.getOrDefault(NamespaceID.getTemp(n), Items.AMMO_PEBBLE);
-					} catch (HardIllegalArgumentException e) {
-						Guidebookmd.LOGGER.error(e.toString());
+
 					}
 				}
 			}
+		} catch (HardIllegalArgumentException e) {
+			Guidebookmd.LOGGER.error(e.toString());
 		}
 	}
 

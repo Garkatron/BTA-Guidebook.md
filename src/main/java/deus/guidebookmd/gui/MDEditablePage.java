@@ -43,7 +43,9 @@ public class MDEditablePage extends MDPage {
 		// ? Config textarea
 		textArea.drawBackground = false;
 		textArea.autoWrap = false;
-		textArea.maxTextLength = 22;
+		textArea.maxTextLength = 26;
+		textArea.drawLineCount = false;
+		textArea.textOffsetX = 2;
 		textArea.maxLines = 22;
 		disableScissor = true;
 	}
@@ -72,12 +74,12 @@ public class MDEditablePage extends MDPage {
 		textArea.x = this.x + textXPos;
 		textArea.y = this.y + textYPos;
 		PageConfig pageConfig = config == null ? screen.config.defaultPageConfig : config;
-		textArea.width = pageConfig.pageTextureWidth - 25;
+		textArea.width = pageConfig.pageTextureWidth - 15;
 		textArea.height = pageConfig.pageTextureHeight - 10;
 
 		if (canEdit) {
-			mdComponents = MarkdownCompiler.compile(textArea.getLines()).mdComponents;
-			config = MarkdownCompiler.compile(textArea.getLines()).config;
+			mdComponents = MarkdownCompiler.compile(textArea.getLines(true)).mdComponents;
+			config = MarkdownCompiler.compile(textArea.getLines(false)).config;
 		}
 
 		int buttonY = this.y + textYPos - 20;
@@ -133,8 +135,8 @@ public class MDEditablePage extends MDPage {
 	}
 
 	public void compileContent() {
-		this.mdComponents = MarkdownCompiler.compile(textArea.getLines()).mdComponents;
-		this.config = MarkdownCompiler.compile(textArea.getLines()).config;
+		this.mdComponents = MarkdownCompiler.compile(textArea.getLines(false)).mdComponents;
+		this.config = MarkdownCompiler.compile(textArea.getLines(false)).config;
 	}
 
 	// ? Buttons logic
@@ -167,11 +169,12 @@ public class MDEditablePage extends MDPage {
 	public void delete() {
 		if (screen instanceof MarkdownGuidebook) {
 			MarkdownGuidebook<MDEditablePage> p = (MarkdownGuidebook<MDEditablePage>) screen;
-			if (p.pages.size() > 1) {
-				int index = p.pages.indexOf(this);
-				p.pages.remove(this);
-				p.goTo(p.pages.size() - 1);
-
+			if (canEdit) {
+				if (p.pages.size() > 1) {
+					int index = p.pages.indexOf(this);
+					p.pages.remove(this);
+					p.goTo(p.pages.size() - 1);
+				}
 			}
 		}
 	}

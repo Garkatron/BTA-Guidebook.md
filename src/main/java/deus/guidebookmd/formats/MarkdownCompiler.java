@@ -84,16 +84,16 @@ public class MarkdownCompiler {
 							currentPage.add(new MDTitle(content, 1.5f));
 							break;
 						case "H3":
-							currentPage.add(new MDTitle(content, 1f));
+							currentPage.add(new MDTitle(content, 1.25f));
 							break;
 						case "H4":
-							currentPage.add(new MDTitle(content, 0.5f));
+							currentPage.add(new MDTitle(content, 0.80f));
 							break;
 						case "H5":
-							currentPage.add(new MDTitle(content, 0.3f));
+							currentPage.add(new MDTitle(content, 0.45f));
 							break;
 						case "H6":
-							currentPage.add(new MDTitle(content, 0.1f));
+							currentPage.add(new MDTitle(content, 0.25f));
 							break;
 						case "LIST":
 							currentPage.add(new MDText("• " + content));

@@ -37,7 +37,7 @@ public class MarkdownEditor extends MarkdownBook {
 
 		textArea.width = width/2;
 		textArea.height = height;
-		page = MarkdownCompiler.compile(textArea.getLines());
+		page = MarkdownCompiler.compile(textArea.getLines(true));
 
 		textArea.updateMousePos(mx,my);
 		textArea.update();

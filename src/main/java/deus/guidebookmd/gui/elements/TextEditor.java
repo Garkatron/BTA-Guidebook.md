@@ -56,8 +56,8 @@ public class TextEditor extends MDGui {
 	public boolean autoWrap = true;
 	public int maxTextLength = 20;
 	public int maxLines = 22;
-	protected int textOffsetX = 12;
 	public int minTextOffsetx = 12;
+	public int textOffsetX = minTextOffsetx;
 
 	// * Colors
 	public int focusBackgroundColor = 0xFF000000;
@@ -103,10 +103,11 @@ public class TextEditor extends MDGui {
 	// ? Functions
 	protected void paste() {
 		if (!clipboard.isEmpty()) {
+			$onTextChanged.emit(characters);
+
 			characters.addAll(currentCharPos, clipboard.get(clipboard.size()-1));
 			currentCharPos = characters.size();
 
-			$onTextChanged.emit(characters);
 		}
 	}
 
@@ -118,6 +119,8 @@ public class TextEditor extends MDGui {
 	}
 
 	protected void cut(int start, int end) {
+		$onTextChanged.emit(characters);
+
 		copy(start, end);
 		int from = Math.min(start, end);
 		int to = Math.max(start, end);
@@ -125,7 +128,6 @@ public class TextEditor extends MDGui {
 			characters.remove(from);
 		}
 
-		$onTextChanged.emit(characters);
 	}
 
 	protected void undo() {
@@ -149,20 +151,21 @@ public class TextEditor extends MDGui {
 	}
 
 	protected void deleteSequence(int start, int end) {
+		$onTextChanged.emit(characters);
+
 		int from = Math.min(start, end);
 		int to = Math.max(start, end);
 		for (int i = 0; i < to - from; i++) {
 			characters.remove(from);
 		}
 
-		$onTextChanged.emit(characters);
 	}
 
 	private void deleteWord() {
+		$onTextChanged.emit(characters);
 		while (!isAtEnd() && !isSpace(peek()) && !wordDeleteIgnore(peek())) {
 			deleteCharacter();
 		}
-		$onTextChanged.emit(characters);
 	}
 
 	// ? Drawing functions
@@ -255,7 +258,6 @@ public class TextEditor extends MDGui {
 				this.drawString(this.mc.font, i+"", this.x, this.y + 4 + (i * mc.font.fontHeight), lineCountColor);
 			}
 		}
-
 		if (lineBuffer.length() > 0) {
 			this.drawString(this.mc.font, lineBuffer.toString(), this.x + textOffsetX, drawY, textColor);
 		}
@@ -343,7 +345,9 @@ public class TextEditor extends MDGui {
 		isCtrl = Keyboard.isKeyDown(Keyboard.KEY_LCONTROL);
 		isShift = Keyboard.isKeyDown(Keyboard.KEY_LSHIFT);
 
-		textOffsetX = Math.max(minTextOffsetx, mc.font.getStringWidth(currentLine+"")+1);
+		if (drawLineCount) {
+			textOffsetX = Math.max(minTextOffsetx, mc.font.getStringWidth(currentLine+"")+1);
+		}
 
 		if (!focused) return;
 
@@ -459,6 +463,15 @@ public class TextEditor extends MDGui {
 		return c == ' ' || c == '\n';
 	}
 
+	public static boolean isNumeric(String str) {
+		try {
+			Double.parseDouble(str);
+			return true;
+		} catch(NumberFormatException e){
+			return false;
+		}
+	}
+
 	private boolean wordDeleteIgnore(char c) {
 		return isSpace(c) || c == '.' || c == ',';
 	}
@@ -490,33 +503,36 @@ public class TextEditor extends MDGui {
 	private void addCharacter(char character) {
 
 		if (currentLine <= maxLines + 1) {
+			$onTextChanged.emit(characters);
+
 			characters.add(currentCharPos, character);
 			currentCharPos++;
-			$onTextChanged.emit(characters);
 		}
 	}
 
 	private void deleteCharacter() {
 		if (focused) {
 			if (currentCharPos > 0) {
+				$onTextChanged.emit(characters);
+
 				characters.remove(currentCharPos-1);
 				currentCharPos--;
 
-				$onTextChanged.emit(characters);
 			}
 		}
 	}
 
 	private void jumpLine() {
 		if (currentLine-1 >= maxLines) return; // Allow jumping up to maxLines
+		$onTextChanged.emit(characters);
 		characters.add(currentCharPos, '\n');
 		currentCharPos++;
-		$onTextChanged.emit(characters);
 	}
 
-	public List<String> getLines() {
-		return getLines(characters, maxTextLength, false);
+	public List<String> getLines(boolean maxTextLengthSeparator) {
+		return getLines(characters, maxTextLength, maxTextLengthSeparator);
 	}
+
 
 	public static List<String> getLines(List<Character> characters, int maxTextLength, boolean maxTextLengthSeparator) {
 		List<String> lines = new ArrayList<>();

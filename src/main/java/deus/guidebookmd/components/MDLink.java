@@ -1,5 +1,6 @@
 package deus.guidebookmd.components;
 
+import deus.guidebookmd.gui.elements.TextEditor;
 import org.lwjgl.input.Mouse;
 
 public class MDLink extends MDText {
@@ -8,7 +9,7 @@ public class MDLink extends MDText {
 	public MDLink(String text, String link) {
 		super(text);
 		String s = link.trim();
-		if (!s.isEmpty()) {
+		if (!s.isEmpty() && TextEditor.isNumeric(s)) {
 			pageRef = Integer.parseInt(s);
 		}
 	}

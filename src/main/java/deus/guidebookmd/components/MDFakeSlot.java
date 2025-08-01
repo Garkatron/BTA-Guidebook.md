@@ -17,11 +17,13 @@ public class MDFakeSlot extends MDComponent {
 
 	public MDFakeSlot(String item) {
 		try {
-			this.item = Item.itemsMap.getOrDefault(NamespaceID.getTemp(item), DEFAULT_ITEM);
-			this.itemElement = new ItemElement(mc);
 			width = 18;
 			height = 20;
+			this.item = Item.itemsMap.getOrDefault(NamespaceID.getTemp(item), DEFAULT_ITEM);
+			this.itemElement = new ItemElement(mc);
+;
 		} catch (HardIllegalArgumentException e) {
+
 			Guidebookmd.LOGGER.error(e.toString());
 		}
 	}

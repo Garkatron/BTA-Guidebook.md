@@ -9,21 +9,21 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class PageConfig implements Cloneable {
-	public final int argbFontColor;
-	public final String pageTexture;
+	public int argbFontColor;
+	public String pageTexture;
 	public int[] scissorWH;
-	public final int maxWidthCharacters;
-	public final int maxCharactersHigh;
-	public final boolean centered;
-	public final boolean centeredMaxWidth;
-	public final int pageTextureWidth;
-	public final int pageTextureHeight;
+	public int maxWidthCharacters;
+	public int maxCharactersHigh;
+	public boolean centered;
+	public boolean centeredMaxWidth;
+	public int pageTextureWidth;
+	public int pageTextureHeight;
 
 	public PageConfig() {
 		this.argbFontColor = MarkdownColor.get('0');
 		this.pageTexture = "/assets/minecraft/textures/gui/container/guidebook/guidebook.png";
 		this.scissorWH = new int[]{144, 215};
-		this.maxWidthCharacters = 26;
+		this.maxWidthCharacters = 24;
 		this.maxCharactersHigh = 22;
 		this.centered = false;
 		this.centeredMaxWidth = false;

@@ -13,7 +13,7 @@
     "argbFontColor": 0,
     "pageTexture": "/assets/guidebookmd/textures/gui/dark_guidebook.png",
     "scissorWH": [144, 215],
-    "maxWidthCharacters": 26,
+    "maxWidthCharacters": 24,
     "maxCharactersHigh": 22,
     "centered": false,
     "centeredMaxWidth": false,

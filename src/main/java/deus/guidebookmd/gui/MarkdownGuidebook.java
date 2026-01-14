@@ -17,11 +17,6 @@ public class MarkdownGuidebook<E extends MDPage> extends MarkdownBook {
 	protected int currentPageNumber = -1;
 	protected final List<E> pages = new ArrayList<>();
 
-	// ? Load markdown
-	public MarkdownGuidebook() {
-
-	}
-
 	@Override
 	public void init() {
 		super.init();
@@ -30,7 +25,6 @@ public class MarkdownGuidebook<E extends MDPage> extends MarkdownBook {
 
 		shareReferenceToComponents();
 	}
-
 
 	@Override
 	public void render(int mx, int my, float partialTick) {

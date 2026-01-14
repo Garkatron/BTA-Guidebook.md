@@ -2,6 +2,7 @@ package deus.guidebookmd;
 
 import com.mojang.nbt.tags.CompoundTag;
 import deus.guidebookmd.config.BookConfig;
+import deus.guidebookmd.config.PageConfig;
 import deus.guidebookmd.gui.MDEditablePage;
 import deus.guidebookmd.gui.MarkdownGuidebook;
 import deus.guidebookmd.gui.elements.PageButton;
@@ -59,7 +60,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 
 		String title = itemStack.getData().getString("title");
 		titleTextArea.drawBackground = false;
-		titleTextArea.maxTextLength = 15;
+		titleTextArea.maxTextLength = config.defaultPageConfig.maxWidthCharacters;
 		titleTextArea.drawBorder = this.editable;
 		titleTextArea.drawCursor = this.editable;
 		titleTextArea.drawExtraCursors = false;
@@ -223,7 +224,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 	}
 
 	public MDEditablePage addPage() {
-		MDEditablePage p = new MDEditablePage(null, new ArrayList<>(), editable);
+		MDEditablePage p = new MDEditablePage(config.defaultPageConfig, new ArrayList<>(), editable);
 		pages.add(p);
 		shareReferenceToComponents();
 		return p;
@@ -341,7 +342,7 @@ public class EditableBook extends MarkdownGuidebook<MDEditablePage> {
 						return "";
 					}
 
-					Object linesResult = TextEditor.getLines(characters, 26, true);
+					Object linesResult = TextEditor.getLines(characters, 24, true);
 					if (linesResult instanceof List) {
 
 						return ((List<String>) linesResult).stream()

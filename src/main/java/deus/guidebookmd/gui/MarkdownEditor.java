@@ -27,7 +27,7 @@ public class MarkdownEditor extends MarkdownBook {
 		textArea.y = 0;
 		textArea.drawBackground = false;
 		textArea.autoWrap = false;
-		textArea.maxTextLength = 26;
+		textArea.maxTextLength = 24;
 
 	}
 

@@ -5,12 +5,12 @@ import deus.guidebookmd.Guidebookmd;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.function.Consumer;
 
 public class BookConfig {
 
-	public String defaultPageTexture = "/assets/minecraft/textures/gui/container/guidebook/guidebook.png";
 	public String frontPage = "/assets/guidebookmd/textures/gui/generic_cover.png";
 	public String backPage = "/assets/guidebookmd/textures/gui/generic_back.png";
 	public int[] backPageOffsets = {0,0};
@@ -30,7 +30,13 @@ public class BookConfig {
 	public BookConfig() {}
 
 	public static BookConfig fromJsonResource(Class<?> c, String path) {
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(c.getResourceAsStream(path)))) {
+		InputStream stream = c.getResourceAsStream(path);
+		if (stream == null) {
+			Guidebookmd.LOGGER.error("Resource not found: {}", path);
+			return new BookConfig();
+		}
+
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
 			Gson gson = new Gson();
 			return gson.fromJson(reader, BookConfig.class);
 		} catch (IOException e) {

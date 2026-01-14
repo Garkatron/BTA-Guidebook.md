@@ -533,7 +533,6 @@ public class TextEditor extends MDGui {
 		return getLines(characters, maxTextLength, maxTextLengthSeparator);
 	}
 
-
 	public static List<String> getLines(List<Character> characters, int maxTextLength, boolean maxTextLengthSeparator) {
 		List<String> lines = new ArrayList<>();
 		StringBuilder lineBuffer = new StringBuilder();

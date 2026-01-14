@@ -7,7 +7,7 @@ public class MarkdownFormat {
 	public static final char STRIKETHROUGH = 'm';
 	public static final char MAGIC = 'k';
 	public static final char RESET = 'r';
-	public static final char SHADOWS = 's'; // Personalizado, no de Minecraft
+	public static final char SHADOWS = 's';
 
 
 	public static boolean isFormatCode(char c) {

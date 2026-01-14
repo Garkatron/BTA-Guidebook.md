@@ -1,5 +1,4 @@
 {
-  "defaultPageTexture": "/assets/minecraft/textures/gui/container/guidebook/guidebook.png",
   "pageSkipAmount": 2,
   "pageTexturePositions": [-79, 79],
   "textXPositions": [-73, 87],
@@ -13,7 +12,7 @@
     "argbFontColor": 0,
     "pageTexture": "/assets/guidebookmd/textures/gui/dark_guidebook.png",
     "scissorWH": [144, 215],
-    "maxWidthCharacters": 26,
+    "maxWidthCharacters": 24,
     "maxCharactersHigh": 22,
     "centered": false,
     "centeredMaxWidth": false,

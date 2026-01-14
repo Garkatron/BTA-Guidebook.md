@@ -12,8 +12,6 @@ public class MDGui extends Gui {
 	public int width = 0;
 	public int height = 0;
 
-
-
 	public void render() {
 
 	}

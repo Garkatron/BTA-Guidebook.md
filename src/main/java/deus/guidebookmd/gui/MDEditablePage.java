@@ -43,7 +43,7 @@ public class MDEditablePage extends MDPage {
 		// ? Config textarea
 		textArea.drawBackground = false;
 		textArea.autoWrap = false;
-		textArea.maxTextLength = 26;
+		textArea.maxTextLength = this.config.maxWidthCharacters;
 		textArea.drawLineCount = false;
 		textArea.textOffsetX = 2;
 		textArea.maxLines = 22;
@@ -129,9 +129,17 @@ public class MDEditablePage extends MDPage {
 		return editable && canEdit;
 	}
 
+	public void updateTextEditorConfig() {
+		this.textArea.maxTextLength = this.config.maxWidthCharacters;
+	}
+
 	public void compileContent() {
 		this.mdComponents = MarkdownCompiler.compile(textArea.getLines(false)).mdComponents;
-		this.config = MarkdownCompiler.compile(textArea.getLines(false)).config;
+		PageConfig config = MarkdownCompiler.compile(textArea.getLines(false)).config;
+		if (config != null) {
+			this.config = config;
+			this.updateTextEditorConfig();
+		}
 	}
 
 	// ? Buttons logic

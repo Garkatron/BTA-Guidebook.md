@@ -16,9 +16,6 @@ public class PageTurnIndicator extends PageButton {
 		size=24;
 	}
 
-
-
-
 	@Override
 	public void render() {
 		this.mc.textureManager.bindTexture(this.mc.textureManager.loadTexture(texture));
